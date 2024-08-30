@@ -26,10 +26,10 @@ const Navbar = () => {
             tabIndex={0}
             className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
             <li>
-            <a>MSIB</a>
+            <a>Support Dev</a>
             <ul className="p-2">
-                <li><a>Studi Independen</a></li>
-                <li><a>Magang</a></li>
+                <li><a>saweria</a></li>
+                <li><a>sociabuzz</a></li>
             </ul>
             </li>
             <li><a>Developed by David Dwiyanto</a></li>
@@ -46,7 +46,7 @@ const Navbar = () => {
             <li>
                 <details>
                 <summary>Support Dev</summary>
-                <ul className="p-2">
+                <ul className="p-2 z-50">
                     <li><a>saweria</a></li>
                     <li><a>sociabuzz</a></li>
                 </ul>
