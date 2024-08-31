@@ -28,8 +28,7 @@ const Navbar = () => {
             <li>
             <a>Support Dev</a>
             <ul className="p-2">
-                <li><a>saweria</a></li>
-                <li><a>sociabuzz</a></li>
+                <li><a href='https://saweria.co/davidcode' target='_blank'>saweria</a></li>
             </ul>
             </li>
             <li><a>Developed by David Dwiyanto</a></li>
@@ -47,8 +46,7 @@ const Navbar = () => {
                 <details>
                 <summary>Support Dev</summary>
                 <ul className="p-2 z-50">
-                    <li><a>saweria</a></li>
-                    <li><a>sociabuzz</a></li>
+                    <li><a href='https://saweria.co/davidcode' target='_blank'>saweria</a></li>
                 </ul>
                 </details>
             </li>
