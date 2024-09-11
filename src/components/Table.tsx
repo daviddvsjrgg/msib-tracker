@@ -7,8 +7,8 @@ const dummyData = [
     { id: "2", name: 'Item 2' },
     { id: "3", name: 'Item 3' },
     { id: "4", name: 'Item 3' },
-    { id: "5", name: 'Item 3' },
-    { id: "6", name: 'Item 3' },
+    // { id: "5", name: 'Item 3' },
+    // { id: "6", name: 'Item 3' },
     // { id: "7", name: 'Item 3' },
     // { id: "8", name: 'Item 3' },
     // { id: "9", name: 'Item 3' },
@@ -51,6 +51,49 @@ const Table = () => {
   };
 
   return (
+    <>
+    {/* Modal */}
+    {/* You can open the modal using document.getElementById('ID').showModal() method */}
+    <dialog id="detailModal" className="modal">
+      <div className="modal-box w-11/12 max-w-5xl">
+        <h3 className="font-bold text-lg">Detail ~PERUSAHAAN~</h3>
+        <div className="divider divider-info"></div>
+        <div className='columns-3'>
+        <label className="form-control w-full max-w-xs">
+          <div className="label">
+            <span className="label-text">Lokasi</span>
+          </div>
+          <input type="text" placeholder="Type here" className="input input-bordered w-full max-w-xs" />
+        </label>
+        <label className="form-control w-full max-w-xs">
+          <div className="label">
+            <span className="label-text">Instagram</span>
+          </div>
+          <input type="text" placeholder="Type here" className="input input-bordered w-full max-w-xs" />
+        </label>
+        <label className="form-control w-full max-w-xs">
+          <div className="label">
+            <span className="label-text">Batch</span>
+          </div>
+          <input disabled type="text" placeholder="7" value="8" className="input input-bordered w-full max-w-xs" />
+        </label>
+        </div>
+        <label className="form-control mt-3">
+          <div className="label">
+            <span className="label-text">Note Khusus</span>
+          </div>
+          <textarea className="textarea textarea-bordered h-24" placeholder="Bio"></textarea>
+          <div className="label">
+          </div>
+        </label>
+        <div className="modal-action">
+          <form method="dialog">
+            {/* if there is a button, it will close the modal */}
+            <button className="btn">Close</button>
+          </form>
+        </div>
+      </div>
+    </dialog>
     <div className="
       md:card md:mx-5 md:my-6 
       mx-0 my-0
@@ -69,7 +112,7 @@ const Table = () => {
                 <th>No</th>
                 <th>Nama Perusahaan</th>
                 <th>Jenis</th>
-                <th>Lokasi Kota</th>
+                <th>Posisi</th>
                 <th>Kemajuan</th>
                 <th>Status</th>
                 <th></th>
@@ -184,7 +227,7 @@ const Table = () => {
                             className="input input-bordered hover:border-black w-full max-w-xs"
                           />
                         ) : (
-                          <p>Surabaya</p>
+                          <p>Fullstack Developer</p>
                         )}
                         {activeColCity === items.id ? (
                            <svg 
@@ -271,7 +314,7 @@ const Table = () => {
                             <li><a>Diterima</a></li>
                             <li><a>Diproses</a></li>
                             <li><a>Terdaftar</a></li>
-                            <li><a>Tidak Lolos</a></li>
+                            <li><a>Di Ghosting</a></li>
                           </ul>
                         </div>
                       </>
@@ -288,7 +331,7 @@ const Table = () => {
                               <li><a>Diterima</a></li>
                               <li><a>Diproses</a></li>
                               <li><a>Terdaftar</a></li>
-                              <li><a>Tidak Lolos</a></li>
+                              <li><a>Di Ghosting</a></li>
                           </ul>
                         </div>
                       </>
@@ -305,7 +348,7 @@ const Table = () => {
                             <li><a>Diterima</a></li>
                             <li><a>Diproses</a></li>
                             <li><a>Terdaftar</a></li>
-                            <li><a>Tidak Lolos</a></li>
+                            <li><a>Di Ghosting</a></li>
                           </ul>
                         </div>
                       </>
@@ -314,7 +357,11 @@ const Table = () => {
                     </td>
                     <th>
                       <div className='inline-flex'>
-                        <button className="btn btn-ghost btn-xs">detail</button>
+                        <button 
+                          className="btn btn-ghost btn-xs" 
+                          onClick={() => (document.getElementById('detailModal') as HTMLDialogElement)?.showModal()}>
+                          detail
+                        </button>
                         <svg 
                           xmlns="http://www.w3.org/2000/svg" 
                           fill="none" 
@@ -338,7 +385,7 @@ const Table = () => {
                 <th>No</th>
                 <th>Nama Perusahaan</th>
                 <th>Jenis</th>
-                <th>Lokasi Kota</th>
+                <th>Posisi</th>
                 <th>Kemajuan</th>
                 <th>Status</th>
                 <th></th>
@@ -348,6 +395,7 @@ const Table = () => {
         </div>
       </div>
     </div>
+    </>
   )
 }
 
