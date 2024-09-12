@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { authenticateAndSave } from '@/api/account/authenticateAndSave';
 
 const dummyData = [
     { id: "1", name: 'Item 1' },
@@ -29,6 +30,19 @@ const dummyData = [
 
 const Table = () => {
   
+  // Create Anonymous 
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        await authenticateAndSave();
+      } catch (error) {
+        console.error('Error initializing authentication and saving data:', error);
+      }
+    };
+
+    initializeAuth();
+  }, []);
+
   // Column City
   const [activeColCompany, setActiveColCompany] = useState<string | null>(null);
 
@@ -52,7 +66,7 @@ const Table = () => {
 
   return (
     <>
-    {/* Modal */}
+    {/* Modal Detail */}
     {/* You can open the modal using document.getElementById('ID').showModal() method */}
     <dialog id="detailModal" className="modal">
       <div className="modal-box w-11/12 max-w-5xl">
@@ -94,15 +108,45 @@ const Table = () => {
         </div>
       </div>
     </dialog>
+    {/* Modal Add */}
+    {/* You can open the modal using document.getElementById('ID').showModal() method */}
+    <dialog id="addModal" className="modal">
+      <div className="modal-box w-11/12 max-w-5xl">
+        <h3 className="font-bold text-lg">Tambah List Perusahaan</h3>
+        <div className="divider divider-info"></div>
+        <div className='column-4'>
+        <label className="w-auto">
+          <div className="label">
+            <span className="label-text">Nama Perusahaan</span>
+          </div>
+          <input type="text" placeholder="Type here" className="input input-bordered w-full" />
+        </label>
+        </div>
+        <div className="modal-action">
+          <form method="dialog">
+            {/* if there is a button, it will close the modal */}
+            <button className="btn mx-2">Batal</button>
+            <button className="btn btn-info hover:text-gray-800 text-white ">Tambahkan</button>
+          </form>
+        </div>
+      </div>
+    </dialog>
     <div className="
       md:card md:mx-5 md:my-6 
       mx-0 my-0
       bg-base-100 w-auto shadow-xl"
       >
       <div className="card-body">
+        <div className="text-xl badge badge-ghost p-3">0/22</div>
         <div className="inline-flex">
-          <h2 className="card-title">List Perusahaan</h2>
-          <div className="text-xl badge badge-ghost my-1">0/22</div>
+          <h2 className="card-title ml-1">List Perusahaan</h2>
+          <button className="btn btn-sm ml-2 hover:scale-105 duration-150"
+          onClick={() => (document.getElementById('addModal') as HTMLDialogElement)?.showModal()}>
+            Tambah
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 10.5v6m3-3H9m4.06-7.19-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
+            </svg>
+          </button>
         </div>
         <div className="overflow-x-auto">   
           <table className="table">
@@ -135,7 +179,7 @@ const Table = () => {
                           <input
                             type="text"
                             placeholder="Type here"
-                            className="input input-bordered hover:border-black w-full max-w-xs"
+                            className="input input-bordered input-sm hover:border-black w-full max-w-xs"
                           />
                         ) : (
                           <div className="font-bold">Hart Hagerty</div>
@@ -173,8 +217,8 @@ const Table = () => {
                     <td>
                     {isItFirstRow ? (
                         <>
-                          <div className="dropdown">
-                              <div tabIndex={0} role="button" className="btn">
+                          <div className="dropdown inline-flex mr-2">
+                              <div tabIndex={0} role="button" className="btn btn-sm">
                                 Opsi
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
                                   <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
@@ -188,8 +232,8 @@ const Table = () => {
                         </>
                       ) : isItLastRow || isItLastSecondRow ?(
                         <>
-                          <div className="dropdown dropdown-right dropdown-end">
-                            <div tabIndex={0} role="button" className="btn">
+                          <div className="dropdown dropdown-right dropdown-end inline-flex mr-2">
+                            <div tabIndex={0} role="button" className="btn btn-sm">
                               Opsi
                               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
@@ -203,8 +247,8 @@ const Table = () => {
                         </>
                       ) : (
                         <>
-                          <div className="dropdown">
-                            <div tabIndex={0} role="button" className="btn">
+                          <div className="dropdown inline-flex mr-2">
+                            <div tabIndex={0} role="button" className="btn btn-sm">
                               Opsi
                               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
@@ -224,7 +268,7 @@ const Table = () => {
                           <input
                             type="text"
                             placeholder="Type here"
-                            className="input input-bordered hover:border-black w-full max-w-xs"
+                            className="input input-bordered input-sm hover:border-black w-full max-w-xs"
                           />
                         ) : (
                           <p>Fullstack Developer</p>
@@ -235,7 +279,7 @@ const Table = () => {
                             fill="none" viewBox="0 0 24 24" 
                             strokeWidth={1.5} 
                             stroke="green"
-                            className="ml-3 scale-125 hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 mt-1.5"
+                            className="ml-3 scale-125 hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-1.6"
                             onClick={() => handleToggleColCity(items.id)}
                           >
                             <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
@@ -265,7 +309,7 @@ const Table = () => {
                               <input
                               type="text"
                               placeholder="Type here"
-                              className="input input-bordered hover:border-black w-full max-w-xs"
+                              className="input input-bordered input-sm hover:border-black w-full max-w-xs"
                               />
                           ) : (
                               <p>Test TPA</p>
@@ -276,7 +320,7 @@ const Table = () => {
                                 fill="none" viewBox="0 0 24 24" 
                                 strokeWidth={1.5} 
                                 stroke="green"
-                                className="ml-3 scale-125 hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 mt-1.5"
+                                className="ml-3 scale-125 hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-1.6"
                                 onClick={() => handleToggleColProgress(items.id)}
                               >
                                 <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
@@ -303,8 +347,8 @@ const Table = () => {
                     <td>
                     {isItFirstRow ? (
                       <>
-                        <div className="dropdown">
-                          <div tabIndex={0} role="button" className="btn">
+                        <div className="dropdown inline-flex mr-2">
+                          <div tabIndex={0} role="button" className="btn btn-sm">
                             Opsi
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
                               <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
@@ -320,8 +364,8 @@ const Table = () => {
                       </>
                     ) : isItLastRow || isItLastSecondRow ? (
                       <>
-                        <div className="dropdown dropdown-left dropdown-end">
-                          <div tabIndex={0} role="button" className="btn">
+                        <div className="dropdown dropdown-left dropdown-end inline-flex mr-2">
+                          <div tabIndex={0} role="button" className="btn btn-sm">
                             Opsi
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
@@ -337,8 +381,8 @@ const Table = () => {
                       </>
                     ) : (
                       <>
-                        <div className="dropdown">
-                          <div tabIndex={0} role="button" className="btn">
+                        <div className="dropdown inline-flex mr-2">
+                          <div tabIndex={0} role="button" className="btn btn-sm">
                             Opsi
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
                               <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
