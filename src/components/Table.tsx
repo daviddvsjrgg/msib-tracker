@@ -2,12 +2,13 @@
 
 import React, { useEffect, useState } from 'react'
 import { authenticateAndSave } from '@/api/account/authenticateAndSave';
+import { addData } from '@/api/usersTable/addData/addData';
 
 const dummyData = [
     { id: "1", name: 'Item 1' },
     { id: "2", name: 'Item 2' },
     { id: "3", name: 'Item 3' },
-    { id: "4", name: 'Item 3' },
+    // { id: "4", name: 'Item 3' },
     // { id: "5", name: 'Item 3' },
     // { id: "6", name: 'Item 3' },
     // { id: "7", name: 'Item 3' },
@@ -30,11 +31,18 @@ const dummyData = [
 
 const Table = () => {
   
-  // Create Anonymous 
+  // Create or Check Authentication 
+  const [userId, setUserId] = useState<string | null>(null);
+  const [tableId, setTableId] = useState<string | null>(null);
+
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        await authenticateAndSave();
+        const result = await authenticateAndSave();
+        if (result) {
+          setUserId(result.userId);  // Set userId
+          setTableId(result.tableId);  // Set tableId
+        }
       } catch (error) {
         console.error('Error initializing authentication and saving data:', error);
       }
@@ -51,7 +59,7 @@ const Table = () => {
   };
 
   // Column City
-  const [activeColCity, setActiveColCity] = useState<string | null>(null);``
+  const [activeColCity, setActiveColCity] = useState<string | null>(null);
 
   const handleToggleColCity = (id: string) => {
     setActiveColCity(activeColCity === id ? null : id);
@@ -64,10 +72,30 @@ const Table = () => {
     setActiveColProgress(activeColProgress === id ? null : id);
   };
 
+  // Add Company
+  const [namaPerusahaan, setNamaPerusahaan] = useState<string>('');
+  const [namaPerusahaanIsEmpty, setNamaPerusahaanIsEmpty] = useState<boolean>(false);
+
+  const handleTambahPerusahaan = async () => {
+    if (namaPerusahaan !== "" && tableId && userId) {
+      try {
+        await addData(userId, tableId, namaPerusahaan);
+        setNamaPerusahaan(''); // Clear the input after saving
+        setNamaPerusahaanIsEmpty(false); // Reset validation flag
+      } catch (error) {
+        console.error('Error adding data:', error);
+      }
+      setNamaPerusahaan('')
+    } else {
+      setNamaPerusahaanIsEmpty(true)
+    }
+  }
+
+  // Fetch Table
+
   return (
     <>
     {/* Modal Detail */}
-    {/* You can open the modal using document.getElementById('ID').showModal() method */}
     <dialog id="detailModal" className="modal">
       <div className="modal-box w-11/12 max-w-5xl">
         <h3 className="font-bold text-lg">Detail ~PERUSAHAAN~</h3>
@@ -81,7 +109,7 @@ const Table = () => {
         </label>
         <label className="form-control w-full max-w-xs">
           <div className="label">
-            <span className="label-text">Instagram</span>
+            <span className="label-text">Media Sosial Perusahaan</span>
           </div>
           <input type="text" placeholder="Type here" className="input input-bordered w-full max-w-xs" />
         </label>
@@ -109,7 +137,6 @@ const Table = () => {
       </div>
     </dialog>
     {/* Modal Add */}
-    {/* You can open the modal using document.getElementById('ID').showModal() method */}
     <dialog id="addModal" className="modal">
       <div className="modal-box w-11/12 max-w-5xl">
         <h3 className="font-bold text-lg">Tambah List Perusahaan</h3>
@@ -119,14 +146,25 @@ const Table = () => {
           <div className="label">
             <span className="label-text">Nama Perusahaan</span>
           </div>
-          <input type="text" placeholder="Type here" className="input input-bordered w-full" />
+          <input type="text" placeholder="Type here"
+            value={namaPerusahaan}
+            onChange={(e) => {
+              setNamaPerusahaanIsEmpty(false)
+              setNamaPerusahaan(e.target.value)
+            }}
+            className={`input input-bordered w-full ${namaPerusahaanIsEmpty ? "input-error" : ""}`} />
+            {namaPerusahaanIsEmpty && (
+              <>
+                <p className='text-sm text-red-600 mt-1'>Hah kosong kak? Isi dulu dong, nama perusahaan apa gitu :D</p>
+              </>
+            )}
         </label>
         </div>
         <div className="modal-action">
           <form method="dialog">
             {/* if there is a button, it will close the modal */}
-            <button className="btn mx-2">Batal</button>
-            <button className="btn btn-info hover:text-gray-800 text-white ">Tambahkan</button>
+            <button className="btn mx-2">Tutup</button>
+            <a onClick={handleTambahPerusahaan} className="btn btn-info hover:text-gray-800 text-white ">Tambahkan</a>
           </form>
         </div>
       </div>

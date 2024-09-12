@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    reactStrictMode: false,
     images: {
         remotePatterns: [
             {
@@ -14,7 +15,7 @@ const nextConfig = {
                 port: '',
                 pathname: '**',
             },
-          ], // Add any other domains you need here
+        ],
     },
 };
 
