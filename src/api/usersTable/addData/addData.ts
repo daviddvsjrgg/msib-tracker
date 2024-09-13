@@ -14,6 +14,7 @@ export async function addData(userId:string, tableId: string, namaPerusahaan: st
     const tableRef = ref(db, `users/${userId}/table/${rowId}`);
 
     const data = {
+      rowId: rowId,
       tableId: tableId,
       mitra_brand_name: namaPerusahaan,
       cycle: "7",

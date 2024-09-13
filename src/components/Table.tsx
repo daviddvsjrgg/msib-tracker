@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from 'react'
 import { authenticateAndSave } from '@/api/account/authenticateAndSave';
 import { addData } from '@/api/usersTable/addData/addData';
+import { onValue, ref } from 'firebase/database';
+import { db } from '@/config/firebase';
 
 const dummyData = [
     { id: "1", name: 'Item 1' },
@@ -29,7 +31,14 @@ const dummyData = [
     // { id: "22", name: 'Item 3' },
 ]
 
-const Table = () => {
+interface TableData {
+  rowId: string;
+  tableId: string;
+  mitra_brand_name: string;
+  cycle: string;
+}
+
+const Table: React.FC = () => {
   
   // Create or Check Authentication 
   const [userId, setUserId] = useState<string | null>(null);
@@ -49,7 +58,7 @@ const Table = () => {
     };
 
     initializeAuth();
-  }, []);
+  }, [userId, tableId]);
 
   // Column City
   const [activeColCompany, setActiveColCompany] = useState<string | null>(null);
@@ -81,7 +90,7 @@ const Table = () => {
       try {
         await addData(userId, tableId, namaPerusahaan);
         setNamaPerusahaan(''); // Clear the input after saving
-        setNamaPerusahaanIsEmpty(false); // Reset validation flag
+        setNamaPerusahaanIsEmpty(false);// Reset validation flag
       } catch (error) {
         console.error('Error adding data:', error);
       }
@@ -92,13 +101,37 @@ const Table = () => {
   }
 
   // Fetch Table
+  const [data, setData] = useState<TableData[]>([]); // Array of TableData
+
+  useEffect(() => {
+    // Path to your specific data in Firebase
+    const dbRef = ref(db, `users/${userId}/table`);
+    
+    // Fetch data in real-time
+    const unsubscribe = onValue(dbRef, (snapshot) => {
+      const fetchedData: TableData[] = [];
+
+      // Iterate over the snapshot to extract data
+      snapshot.forEach((childSnapshot) => {
+        const item = childSnapshot.val() as TableData; // Cast the snapshot value to TableData
+        fetchedData.push(item);
+      });
+
+      setData(fetchedData); // Set the state with the fetched data
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, [userId]);
+
+  
 
   return (
     <>
     {/* Modal Detail */}
     <dialog id="detailModal" className="modal">
       <div className="modal-box w-11/12 max-w-5xl">
-        <h3 className="font-bold text-lg">Detail ~PERUSAHAAN~</h3>
+        <h3 className="font-bold text-lg">Detail ~PERUSA22HAsAN~</h3>
         <div className="divider divider-info"></div>
         <div className='columns-3'>
         <label className="form-control w-full max-w-xs">
@@ -201,35 +234,35 @@ const Table = () => {
               </tr>
             </thead>
             {/* body */}
-            {dummyData.map((items, index) => {
+            {data.map((items, index) => {
               const isItFirstRow = index === 0;
-              const isItLastRow = index === dummyData.length - 1;
-              const isItLastSecondRow = index === dummyData.length - 2;
+              const isItLastRow = index === data.length - 1;
+              const isItLastSecondRow = index === data.length - 2;
 
               return (
               <>
-                <tbody key={items.id}>
+                <tbody key={items.rowId}>
                   <tr className='hover:bg-gray-100/65'>
                     <td>{index + 1}</td>
                     <td>
                       <div className="flex items-center gap-3">
-                        {activeColCompany === items.id ? (
+                        {activeColCompany === items.rowId ? (
                           <input
                             type="text"
                             placeholder="Type here"
                             className="input input-bordered input-sm hover:border-black w-full max-w-xs"
                           />
                         ) : (
-                          <div className="font-bold">Hart Hagerty</div>
+                          <div className="font-bold">{items.mitra_brand_name}</div>
                         )}
-                        {activeColCompany === items.id ? (
+                        {activeColCompany === items.rowId ? (
                            <svg 
                             xmlns="http://www.w3.org/2000/svg" 
                             fill="none" viewBox="0 0 24 24" 
                             strokeWidth={1.5} 
                             stroke="green"
                             className="scale-125 hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-1"
-                            onClick={() => handleToggleColCompany(items.id)}
+                            onClick={() => handleToggleColCompany(items.rowId)}
                           >
                             <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                           </svg>
@@ -241,7 +274,7 @@ const Table = () => {
                             strokeWidth={1.5}
                             stroke="currentColor"
                             className="hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-2"
-                            onClick={() => handleToggleColCompany(items.id)}
+                            onClick={() => handleToggleColCompany(items.rowId)}
                           >
                             <path
                               strokeLinecap="round"
@@ -255,7 +288,7 @@ const Table = () => {
                     <td>
                     {isItFirstRow ? (
                         <>
-                          <div className="dropdown inline-flex mr-2">
+                          <div className="dropdown mr-2">
                               <div tabIndex={0} role="button" className="btn btn-sm">
                                 Opsi
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
@@ -270,7 +303,7 @@ const Table = () => {
                         </>
                       ) : isItLastRow || isItLastSecondRow ?(
                         <>
-                          <div className="dropdown dropdown-right dropdown-end inline-flex mr-2">
+                          <div className="dropdown dropdown-right dropdown-end mr-2">
                             <div tabIndex={0} role="button" className="btn btn-sm">
                               Opsi
                               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
@@ -285,7 +318,7 @@ const Table = () => {
                         </>
                       ) : (
                         <>
-                          <div className="dropdown inline-flex mr-2">
+                          <div className="dropdown mr-2">
                             <div tabIndex={0} role="button" className="btn btn-sm">
                               Opsi
                               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
@@ -302,7 +335,7 @@ const Table = () => {
                     </td>
                     <td>
                       <div className='inline-flex'>
-                        {activeColCity === items.id ? (
+                        {activeColCity === items.rowId ? (
                           <input
                             type="text"
                             placeholder="Type here"
@@ -311,14 +344,14 @@ const Table = () => {
                         ) : (
                           <p>Fullstack Developer</p>
                         )}
-                        {activeColCity === items.id ? (
+                        {activeColCity === items.rowId ? (
                            <svg 
                             xmlns="http://www.w3.org/2000/svg" 
                             fill="none" viewBox="0 0 24 24" 
                             strokeWidth={1.5} 
                             stroke="green"
                             className="ml-3 scale-125 hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-1.6"
-                            onClick={() => handleToggleColCity(items.id)}
+                            onClick={() => handleToggleColCity(items.rowId)}
                           >
                             <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                           </svg>
@@ -330,7 +363,7 @@ const Table = () => {
                             strokeWidth={1.5}
                             stroke="currentColor"
                             className="ml-3 hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-2"
-                            onClick={() => handleToggleColCity(items.id)}
+                            onClick={() => handleToggleColCity(items.rowId)}
                           >
                             <path
                               strokeLinecap="round"
@@ -343,7 +376,7 @@ const Table = () => {
                     </td>
                     <td>
                       <div className='inline-flex'>
-                          {activeColProgress === items.id ? (
+                          {activeColProgress === items.rowId ? (
                               <input
                               type="text"
                               placeholder="Type here"
@@ -352,14 +385,14 @@ const Table = () => {
                           ) : (
                               <p>Test TPA</p>
                           )}
-                          {activeColProgress === items.id ? (
+                          {activeColProgress === items.rowId ? (
                               <svg 
                                 xmlns="http://www.w3.org/2000/svg" 
                                 fill="none" viewBox="0 0 24 24" 
                                 strokeWidth={1.5} 
                                 stroke="green"
                                 className="ml-3 scale-125 hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-1.6"
-                                onClick={() => handleToggleColProgress(items.id)}
+                                onClick={() => handleToggleColProgress(items.rowId)}
                               >
                                 <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                               </svg>
@@ -371,7 +404,7 @@ const Table = () => {
                               strokeWidth={1.5}
                               stroke="currentColor"
                               className="ml-3 hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-1"
-                              onClick={() => handleToggleColProgress(items.id)}
+                              onClick={() => handleToggleColProgress(items.rowId)}
                             >
                               <path
                                 strokeLinecap="round"
@@ -385,7 +418,7 @@ const Table = () => {
                     <td>
                     {isItFirstRow ? (
                       <>
-                        <div className="dropdown inline-flex mr-2">
+                        <div className="dropdown mr-2">
                           <div tabIndex={0} role="button" className="btn btn-sm">
                             Opsi
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
@@ -402,7 +435,7 @@ const Table = () => {
                       </>
                     ) : isItLastRow || isItLastSecondRow ? (
                       <>
-                        <div className="dropdown dropdown-left dropdown-end inline-flex mr-2">
+                        <div className="dropdown dropdown-left dropdown-end mr-2">
                           <div tabIndex={0} role="button" className="btn btn-sm">
                             Opsi
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
@@ -419,7 +452,7 @@ const Table = () => {
                       </>
                     ) : (
                       <>
-                        <div className="dropdown inline-flex mr-2">
+                        <div className="dropdown mr-2">
                           <div tabIndex={0} role="button" className="btn btn-sm">
                             Opsi
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
@@ -462,8 +495,8 @@ const Table = () => {
               )
             })}
             {/* foot */}
-            <tfoot className={`${dummyData.length >= 3 ? '' : 'h-56'}`}>
-              <tr className={`${dummyData.length >= 3 ? '' : 'hidden'}`}>
+            <tfoot className={`${data.length >= 3 ? '' : 'h-56'}`}>
+              <tr className={`${data.length >= 3 ? '' : 'hidden'}`}>
                 <th>No</th>
                 <th>Nama Perusahaan</th>
                 <th>Jenis</th>

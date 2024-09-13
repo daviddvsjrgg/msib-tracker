@@ -25,7 +25,6 @@ export async function authenticateAndSave(): Promise<{ userId: string, tableId: 
                             resolve({ userId, tableId }); // Return userId and tableId
                         } else {
                             console.log('No data available for this user.');
-                            resolve(null);
                         }
                     } else {
                         // No user is signed in, authenticate anonymously
@@ -43,8 +42,19 @@ export async function authenticateAndSave(): Promise<{ userId: string, tableId: 
 
                         // Save user data to Firebase Realtime Database
                         await set(ref(db, `users/${userId}`), userData);
-                        console.log('User authenticated and data saved:', userData);
-                        resolve({ userId, tableId }); // Return userId and tableId
+                        console.log('User authenticated and data saved (Anonymous):', userData);
+
+                        const userRef = ref(db, `users/${userId}`);
+                        const snapshot = await get(userRef);
+                        
+                        if (snapshot.exists()) {
+                            const userData = snapshot.val();
+                            const tableId = userData.tableId;
+                            console.log('Your table ID (Anonymous):', tableId);
+                            resolve({ userId, tableId }); // Return userId and tableId
+                        } else {
+                            console.log('No data available for this user. (Anonymous)');
+                        }
                     }
                 } catch (error) {
                     console.error('Error during authentication or saving data:', error);
