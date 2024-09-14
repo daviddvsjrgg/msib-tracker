@@ -32,10 +32,19 @@ const dummyData = [
 ]
 
 interface TableData {
-  rowId: string;
-  tableId: string;
-  mitra_brand_name: string;
-  cycle: string;
+  rowId: string,
+  tableId: string,
+  status: string,
+  lokasi: string,
+  nama_kegiatan: string,
+  deskripsi: string,
+  name_ref_kegiatan: string,
+  mitra_logo: string,
+  mitra_brand_name: string,
+  semester_program: string,
+  cycle: string,
+  createdAt: string,
+  updatedAt: string,
 }
 
 const Table: React.FC = () => {
@@ -84,13 +93,18 @@ const Table: React.FC = () => {
   // Add Company
   const [namaPerusahaan, setNamaPerusahaan] = useState<string>('');
   const [namaPerusahaanIsEmpty, setNamaPerusahaanIsEmpty] = useState<boolean>(false);
-
+  
+  // Tambahkan Button
+  const [addButton, setAddButton] = useState<boolean>(false);
+  
   const handleTambahPerusahaan = async () => {
     if (namaPerusahaan !== "" && tableId && userId) {
       try {
+        setAddButton(true)
         await addData(userId, tableId, namaPerusahaan);
         setNamaPerusahaan(''); // Clear the input after saving
-        setNamaPerusahaanIsEmpty(false);// Reset validation flag
+        setNamaPerusahaanIsEmpty(false); // Reset validation flag
+        setAddButton(false)
       } catch (error) {
         console.error('Error adding data:', error);
       }
@@ -99,14 +113,16 @@ const Table: React.FC = () => {
       setNamaPerusahaanIsEmpty(true)
     }
   }
+  
+
 
   // Fetch Table
-  const [data, setData] = useState<TableData[]>([]); // Array of TableData
+  const [data, setData] = useState<TableData[]>([]);
 
   useEffect(() => {
     // Path to your specific data in Firebase
     const dbRef = ref(db, `users/${userId}/table`);
-    
+
     // Fetch data in real-time
     const unsubscribe = onValue(dbRef, (snapshot) => {
       const fetchedData: TableData[] = [];
@@ -117,7 +133,11 @@ const Table: React.FC = () => {
         fetchedData.push(item);
       });
 
-      setData(fetchedData); // Set the state with the fetched data
+      // Sort the fetchedData by createdAt in descending order (newest first)
+      const sortedData = fetchedData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+      // Set the state with the sorted data
+      setData(sortedData);
     });
 
     // Cleanup subscription on unmount
@@ -197,7 +217,30 @@ const Table: React.FC = () => {
           <form method="dialog">
             {/* if there is a button, it will close the modal */}
             <button className="btn mx-2">Tutup</button>
-            <a onClick={handleTambahPerusahaan} className="btn btn-info hover:text-gray-800 text-white ">Tambahkan</a>
+            {addButton ? (
+              <>
+                <a className="btn btn-info hover:text-gray-800 text-white ">
+                  Tambahkan
+                  <span className="loading loading-spinner"></span>
+                </a>
+              </>
+            ) : (
+              <>
+              {data.length >= 22 ? (
+                <>
+                  <a className="btn btn-info hover:text-gray-800 text-white">
+                    Udah ngga bisa tambah lagi kak :D
+                  </a>
+                </>
+              ) : (
+                <>
+                  <a onClick={handleTambahPerusahaan} className="btn btn-info hover:text-gray-800 text-white ">
+                    Tambahkan
+                  </a>
+                </>
+              )}
+              </>
+            )}
           </form>
         </div>
       </div>
@@ -208,7 +251,7 @@ const Table: React.FC = () => {
       bg-base-100 w-auto shadow-xl"
       >
       <div className="card-body">
-        <div className="text-xl badge badge-ghost p-3">0/22</div>
+        <div className="text-xl badge badge-ghost p-3">{data.length}/22</div>
         <div className="inline-flex">
           <h2 className="card-title ml-1">List Perusahaan</h2>
           <button className="btn btn-sm ml-2 hover:scale-105 duration-150"

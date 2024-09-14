@@ -37,7 +37,9 @@ export async function authenticateAndSave(): Promise<{ userId: string, tableId: 
                         const userData = {
                             userId,
                             tableId,
-                            username: 'anonymous'
+                            username: 'anonymous',
+                            createdAt: new Date().toISOString(),
+                            updatedAt: new Date().toISOString(),
                         };
 
                         // Save user data to Firebase Realtime Database
