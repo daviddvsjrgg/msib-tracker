@@ -5,31 +5,7 @@ import { authenticateAndSave } from '@/api/account/authenticateAndSave';
 import { addData } from '@/api/usersTable/addData/addData';
 import { onValue, ref } from 'firebase/database';
 import { db } from '@/config/firebase';
-
-const dummyData = [
-    { id: "1", name: 'Item 1' },
-    { id: "2", name: 'Item 2' },
-    { id: "3", name: 'Item 3' },
-    // { id: "4", name: 'Item 3' },
-    // { id: "5", name: 'Item 3' },
-    // { id: "6", name: 'Item 3' },
-    // { id: "7", name: 'Item 3' },
-    // { id: "8", name: 'Item 3' },
-    // { id: "9", name: 'Item 3' },
-    // { id: "10", name: 'Item 3' },
-    // { id: "11", name: 'Item 3' },
-    // { id: "12", name: 'Item 3' },
-    // { id: "13", name: 'Item 3' },
-    // { id: "14", name: 'Item 3' },
-    // { id: "15", name: 'Item 3' },
-    // { id: "16", name: 'Item 3' },
-    // { id: "17", name: 'Item 3' },
-    // { id: "18", name: 'Item 3' },
-    // { id: "19", name: 'Item 3' },
-    // { id: "20", name: 'Item 3' },
-    // { id: "21", name: 'Item 3' },
-    // { id: "22", name: 'Item 3' },
-]
+import { updateOption } from '@/api/usersTable/editData/editData';
 
 interface TableData {
   rowId: string,
@@ -65,9 +41,9 @@ const Table: React.FC = () => {
         console.error('Error initializing authentication and saving data:', error);
       }
     };
-
+  
     initializeAuth();
-  }, [userId, tableId]);
+  }, []);
 
   // Column City
   const [activeColCompany, setActiveColCompany] = useState<string | null>(null);
@@ -120,30 +96,42 @@ const Table: React.FC = () => {
   const [data, setData] = useState<TableData[]>([]);
 
   useEffect(() => {
-    // Path to your specific data in Firebase
-    const dbRef = ref(db, `users/${userId}/table`);
-
-    // Fetch data in real-time
-    const unsubscribe = onValue(dbRef, (snapshot) => {
-      const fetchedData: TableData[] = [];
-
-      // Iterate over the snapshot to extract data
-      snapshot.forEach((childSnapshot) => {
-        const item = childSnapshot.val() as TableData; // Cast the snapshot value to TableData
-        fetchedData.push(item);
+    if (userId) {
+      const dbRef = ref(db, `users/${userId}/table`);
+  
+      // Fetch data in real-time
+      const unsubscribe = onValue(dbRef, (snapshot) => {
+        const fetchedData: TableData[] = [];
+        snapshot.forEach((childSnapshot) => {
+          const item = childSnapshot.val() as TableData; // Cast the snapshot value to TableData
+          fetchedData.push(item);
+        });
+  
+        // Sort the fetchedData by createdAt in descending order (newest first)
+        const sortedData = fetchedData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  
+        // Set the state with the sorted data
+        setData(sortedData);
       });
-
-      // Sort the fetchedData by createdAt in descending order (newest first)
-      const sortedData = fetchedData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
-      // Set the state with the sorted data
-      setData(sortedData);
-    });
-
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
+  
+      // Cleanup subscription on unmount
+      return () => unsubscribe();
+    }
   }, [userId]);
 
+  // Edit Data
+  // Type (1)
+  const handleOptionSelect = async (option: string, rowId: string, column: string) => {
+    if (option && userId && rowId && column) {
+      try {
+        await updateOption(option, userId, rowId, column);  // Update the option in Firebase
+      } catch (error) {
+        console.error('Error updating type:', error);
+      }
+    } else {
+      console.error('UserId is not defined');
+    }
+  };
   
 
   return (
@@ -245,6 +233,21 @@ const Table: React.FC = () => {
         </div>
       </div>
     </dialog>
+    {/* Modal Delete Row */}
+    {/* Put this part before </body> tag */}
+    <dialog id="deleteModal" className="modal">
+      <div className="modal-box">
+        <h3 className="font-bold text-lg">ang ang ang</h3>
+        <p className="py-4">ESC untuk menutup</p>
+        <div className="modal-action">
+          <form method="dialog">
+            {/* if there is a button in form, it will close the modal */}
+            <button className="btn mx-2">Close</button>
+            <a className="btn bg-red-500 text-white hover:bg-red-600">Hapus</a>
+          </form>
+        </div>
+      </div>
+    </dialog>
     <div className="
       md:card md:mx-5 md:my-6 
       mx-0 my-0
@@ -332,45 +335,96 @@ const Table: React.FC = () => {
                     {isItFirstRow ? (
                         <>
                           <div className="dropdown mr-2">
-                              <div tabIndex={0} role="button" className="btn btn-sm">
-                                Opsi
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
-                                  <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                                </svg>
-                              </div>
-                              <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-                                <li><a>Studi Independen</a></li>
-                                <li><a>Magang</a></li>
-                              </ul>
-                            </div>  
+                            <div tabIndex={0} role="button" className={`btn btn-sm
+                            ${items.name_ref_kegiatan === "Studi Independen" ? 'bg-sky-400 text-white hover:bg-sky-500' :
+                              items.name_ref_kegiatan === "Magang" ? 'bg-gray-500 text-white hover:bg-gray-600' : ""}`}>
+                              {items.name_ref_kegiatan ? items.name_ref_kegiatan : "Opsi"}
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={1.5}
+                                stroke="currentColor"
+                                className="size-5"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                                />
+                              </svg>
+                            </div>
+                            <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                              <li>
+                                <a onClick={() => handleOptionSelect('Studi Independen', items.rowId, "name_ref_kegiatan")}>Studi Independen</a>
+                              </li>
+                              <li>
+                                <a onClick={() => handleOptionSelect('Magang', items.rowId, "name_ref_kegiatan")}>Magang</a>
+                              </li>
+                            </ul>
+                          </div> 
                         </>
                       ) : isItLastRow || isItLastSecondRow ?(
                         <>
                           <div className="dropdown dropdown-right dropdown-end mr-2">
-                            <div tabIndex={0} role="button" className="btn btn-sm">
-                              Opsi
-                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                          <div tabIndex={0} role="button" className={`btn btn-sm
+                            ${items.name_ref_kegiatan === "Studi Independen" ? 'bg-sky-400 text-white hover:bg-sky-500' :
+                              items.name_ref_kegiatan === "Magang" ? 'bg-gray-500 text-white hover:bg-gray-600' : ""}`}>
+                              {items.name_ref_kegiatan ? items.name_ref_kegiatan : "Opsi"}
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={1.5}
+                                stroke="currentColor"
+                                className="size-5"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                                />
                               </svg>
                             </div>
                             <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-                              <li><a>Studi Independen</a></li>
-                              <li><a>Magang</a></li>
+                              <li>
+                                <a onClick={() => handleOptionSelect('Studi Independen', items.rowId, "name_ref_kegiatan")}>Studi Independen</a>
+                              </li>
+                              <li>
+                                <a onClick={() => handleOptionSelect('Magang', items.rowId, "name_ref_kegiatan")}>Magang</a>
+                              </li>
                             </ul>
                           </div> 
                         </>
                       ) : (
                         <>
                           <div className="dropdown mr-2">
-                            <div tabIndex={0} role="button" className="btn btn-sm">
-                              Opsi
-                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                          <div tabIndex={0} role="button" className={`btn btn-sm
+                            ${items.name_ref_kegiatan === "Studi Independen" ? 'bg-sky-400 text-white hover:bg-sky-500' :
+                              items.name_ref_kegiatan === "Magang" ? 'bg-gray-500 text-white hover:bg-gray-600' : ""}`}>
+                              {items.name_ref_kegiatan ? items.name_ref_kegiatan : "Opsi"}
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={1.5}
+                                stroke="currentColor"
+                                className="size-5"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                                />
                               </svg>
                             </div>
                             <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-                              <li><a>Studi Independen</a></li>
-                              <li><a>Magang</a></li>
+                              <li>
+                                <a onClick={() => handleOptionSelect('Studi Independen', items.rowId, "name_ref_kegiatan")}>Studi Independen</a>
+                              </li>
+                              <li>
+                                <a onClick={() => handleOptionSelect('Magang', items.rowId, "name_ref_kegiatan")}>Magang</a>
+                              </li>
                             </ul>
                           </div>  
                         </>
@@ -462,51 +516,117 @@ const Table: React.FC = () => {
                     {isItFirstRow ? (
                       <>
                         <div className="dropdown mr-2">
-                          <div tabIndex={0} role="button" className="btn btn-sm">
-                            Opsi
+                          <div tabIndex={0} role="button" 
+                          className={`btn btn-sm 
+                            ${items.status === "Diterima" ? 'bg-green-500 text-white hover:bg-green-600' :
+                              items.status === "Diproses" ? 'bg-yellow-400 hover:text-gray-700 hover:bg-yellow-500' :
+                              items.status === "Terdaftar" ? 'bg-sky-400 text-white hover:bg-sky-500' :
+                              items.status === "Di Ghosting" ? '' :
+                              "Opsi"}`}>
+                            {items.status ? items.status : "Opsi"}
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
                               <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
                             </svg>
                           </div>
                           <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-                            <li><a>Diterima</a></li>
-                            <li><a>Diproses</a></li>
-                            <li><a>Terdaftar</a></li>
-                            <li><a>Di Ghosting</a></li>
+                            <li>
+                              <a onClick={() => handleOptionSelect('Diterima', items.rowId, "status")}>
+                                Diterima
+                              </a>
+                            </li>
+                            <li>
+                              <a onClick={() => handleOptionSelect('Diproses', items.rowId, "status")}>
+                                Diproses
+                              </a>
+                            </li>
+                            <li>
+                              <a onClick={() => handleOptionSelect('Terdaftar', items.rowId, "status")}>
+                                Terdaftar
+                              </a>
+                            </li>
+                            <li>
+                              <a onClick={() => handleOptionSelect('Di Ghosting', items.rowId, "status")}>
+                                Di Ghosting
+                              </a>
+                            </li>
                           </ul>
                         </div>
                       </>
                     ) : isItLastRow || isItLastSecondRow ? (
                       <>
                         <div className="dropdown dropdown-left dropdown-end mr-2">
-                          <div tabIndex={0} role="button" className="btn btn-sm">
-                            Opsi
+                          <div tabIndex={0} role="button"
+                          className={`btn btn-sm 
+                            ${items.status === "Diterima" ? 'bg-green-500 text-white hover:bg-green-600' :
+                              items.status === "Diproses" ? 'bg-yellow-400 hover:text-gray-700 hover:bg-yellow-500' :
+                              items.status === "Terdaftar" ? 'bg-sky-400 text-white hover:bg-sky-500' :
+                              items.status === "Di Ghosting" ? '' :
+                              "Opsi"}`}>
+                          {items.status ? items.status : "Opsi"}
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
                               </svg>
                           </div>
                           <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-                              <li><a>Diterima</a></li>
-                              <li><a>Diproses</a></li>
-                              <li><a>Terdaftar</a></li>
-                              <li><a>Di Ghosting</a></li>
+                            <li>
+                              <a onClick={() => handleOptionSelect('Diterima', items.rowId, "status")}>
+                                Diterima
+                              </a>
+                            </li>
+                            <li>
+                              <a onClick={() => handleOptionSelect('Diproses', items.rowId, "status")}>
+                                Diproses
+                              </a>
+                            </li>
+                            <li>
+                              <a onClick={() => handleOptionSelect('Terdaftar', items.rowId, "status")}>
+                                Terdaftar
+                              </a>
+                            </li>
+                            <li>
+                              <a onClick={() => handleOptionSelect('Di Ghosting', items.rowId, "status")}>
+                                Di Ghosting
+                              </a>
+                            </li>
                           </ul>
                         </div>
                       </>
                     ) : (
                       <>
                         <div className="dropdown mr-2">
-                          <div tabIndex={0} role="button" className="btn btn-sm">
-                            Opsi
+                          <div tabIndex={0} role="button"
+                          className={`btn btn-sm 
+                            ${items.status === "Diterima" ? 'bg-green-500 text-white hover:bg-green-600' :
+                              items.status === "Diproses" ? 'bg-yellow-400 hover:text-gray-700 hover:bg-yellow-500' :
+                              items.status === "Terdaftar" ? 'bg-sky-400 text-white hover:bg-sky-500' :
+                              items.status === "Di Ghosting" ? '' :
+                              "Opsi"}`}>
+                          {items.status ? items.status : "Opsi"}
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
                               <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
                             </svg>
                           </div>
                           <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-                            <li><a>Diterima</a></li>
-                            <li><a>Diproses</a></li>
-                            <li><a>Terdaftar</a></li>
-                            <li><a>Di Ghosting</a></li>
+                            <li>
+                              <a onClick={() => handleOptionSelect('Diterima', items.rowId, "status")}>
+                                Diterima
+                              </a>
+                            </li>
+                            <li>
+                              <a onClick={() => handleOptionSelect('Diproses', items.rowId, "status")}>
+                                Diproses
+                              </a>
+                            </li>
+                            <li>
+                              <a onClick={() => handleOptionSelect('Terdaftar', items.rowId, "status")}>
+                                Terdaftar
+                              </a>
+                            </li>
+                            <li>
+                              <a onClick={() => handleOptionSelect('Di Ghosting', items.rowId, "status")}>
+                                Di Ghosting
+                              </a>
+                            </li>
                           </ul>
                         </div>
                       </>
@@ -520,7 +640,8 @@ const Table: React.FC = () => {
                           onClick={() => (document.getElementById('detailModal') as HTMLDialogElement)?.showModal()}>
                           detail
                         </button>
-                        <svg 
+                        <svg
+                          onClick={() => (document.getElementById('deleteModal') as HTMLDialogElement)?.showModal()}
                           xmlns="http://www.w3.org/2000/svg" 
                           fill="none" 
                           viewBox="0 0 24 24" 
