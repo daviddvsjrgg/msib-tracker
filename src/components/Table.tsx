@@ -3,9 +3,10 @@
 import React, { useEffect, useState } from 'react'
 import { authenticateAndSave } from '@/api/account/authenticateAndSave';
 import { addData } from '@/api/usersTable/addData/addData';
-import { onValue, ref } from 'firebase/database';
+import { onValue, ref} from 'firebase/database';
 import { db } from '@/config/firebase';
-import { updateOption } from '@/api/usersTable/editData/editData';
+import { updateBrandName, updateOption } from '@/api/usersTable/editData/editData';
+import useDebounce from '@/hooks/useDebounce';
 
 interface TableData {
   rowId: string,
@@ -132,6 +133,14 @@ const Table: React.FC = () => {
       console.error('UserId is not defined');
     }
   };
+
+  // Edit Brand Name
+  const handleInputBrandNameChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const brandName = e.target.value
+    if (userId && activeColCompany) {
+      updateBrandName(brandName, userId, activeColCompany);
+    }
+  };
   
 
   return (
@@ -243,7 +252,11 @@ const Table: React.FC = () => {
           <form method="dialog">
             {/* if there is a button in form, it will close the modal */}
             <button className="btn mx-2">Close</button>
-            <a className="btn bg-red-500 text-white hover:bg-red-600">Hapus</a>
+            <a className="btn bg-red-500 text-white hover:bg-red-600"
+            onClick={() => {
+              const modal = document.getElementById('deleteModal') as HTMLDialogElement;
+              modal.close(); // Close the modal when Hapus is clicked
+            }}>Hapus</a>
           </form>
         </div>
       </div>
@@ -294,6 +307,8 @@ const Table: React.FC = () => {
                       <div className="flex items-center gap-3">
                         {activeColCompany === items.rowId ? (
                           <input
+                            value={items.mitra_brand_name}
+                            onChange={handleInputBrandNameChange}
                             type="text"
                             placeholder="Type here"
                             className="input input-bordered input-sm hover:border-black w-full max-w-xs"
@@ -308,7 +323,9 @@ const Table: React.FC = () => {
                             strokeWidth={1.5} 
                             stroke="green"
                             className="scale-125 hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-1"
-                            onClick={() => handleToggleColCompany(items.rowId)}
+                            onClick={() => {
+                              handleToggleColCompany(items.rowId)
+                            }}
                           >
                             <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                           </svg>
@@ -320,7 +337,9 @@ const Table: React.FC = () => {
                             strokeWidth={1.5}
                             stroke="currentColor"
                             className="hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-2"
-                            onClick={() => handleToggleColCompany(items.rowId)}
+                            onClick={() => {
+                              handleToggleColCompany(items.rowId)
+                            }}
                           >
                             <path
                               strokeLinecap="round"
@@ -647,7 +666,7 @@ const Table: React.FC = () => {
                           viewBox="0 0 24 24" 
                           strokeWidth={1.5} 
                           stroke="red" 
-                          className="scale-110 hover:scale-100 hover:bg-gray-200 hover:rounded-md hover:cursor-pointer duration-150 size-6 p-1"
+                          className="scale-110 hover:scale-125 hover:bg-gray-200 hover:rounded-md hover:cursor-pointer duration-150 size-6 p-1"
                         >
                           <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                         </svg>

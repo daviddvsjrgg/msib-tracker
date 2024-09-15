@@ -27,3 +27,15 @@ export const updateOption = async (option: string, userId: string, rowId: string
     console.error('Error saving data:', error);  // Catch and log any errors
   }
 };
+
+// Edit Brand Name
+// Function to update Firebase
+export const updateBrandName = async (value: string, userId: string, rowId: string) => {
+    try {
+      const dbRef = ref(db, `users/${userId}/table/${rowId}/mitra_brand_name`); // Adjust to your Firebase path
+      await set(dbRef, value);
+      console.log("Data updated successfully");
+    } catch (error) {
+      console.error("Error updating Firebase:", error);
+    }
+  };
