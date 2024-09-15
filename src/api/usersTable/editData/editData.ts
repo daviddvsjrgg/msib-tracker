@@ -2,6 +2,7 @@ import { db } from '@/config/firebase';
 import { ref, set, get, remove } from 'firebase/database';
 
 // Function to update or delete the selected option in Firebase Realtime Database
+// Edit Option Change
 export const updateOption = async (option: string, userId: string, rowId: string, column: string): Promise<void> => {
   try {
     if (!option || !userId || !rowId) {
@@ -28,11 +29,10 @@ export const updateOption = async (option: string, userId: string, rowId: string
   }
 };
 
-// Edit Brand Name
-// Function to update Firebase
-export const updateBrandName = async (value: string, userId: string, rowId: string) => {
+// Edit Input Change
+export const updateInput = async (value: string, userId: string, rowId: string, column: string) => {
     try {
-      const dbRef = ref(db, `users/${userId}/table/${rowId}/mitra_brand_name`); // Adjust to your Firebase path
+      const dbRef = ref(db, `users/${userId}/table/${rowId}/${column}`); // Adjust to your Firebase path
       await set(dbRef, value);
       console.log("Data updated successfully");
     } catch (error) {

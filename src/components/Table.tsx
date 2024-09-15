@@ -5,8 +5,7 @@ import { authenticateAndSave } from '@/api/account/authenticateAndSave';
 import { addData } from '@/api/usersTable/addData/addData';
 import { onValue, ref} from 'firebase/database';
 import { db } from '@/config/firebase';
-import { updateBrandName, updateOption } from '@/api/usersTable/editData/editData';
-import useDebounce from '@/hooks/useDebounce';
+import { updateInput, updateOption } from '@/api/usersTable/editData/editData';
 
 interface TableData {
   rowId: string,
@@ -20,6 +19,7 @@ interface TableData {
   mitra_brand_name: string,
   semester_program: string,
   cycle: string,
+  progress: string,
   createdAt: string,
   updatedAt: string,
 }
@@ -46,18 +46,25 @@ const Table: React.FC = () => {
     initializeAuth();
   }, []);
 
+  // DB Column Change
+  const [dbBrandColumn, setDbBrandColumn] = useState<string | null>('')
+  const [dbPositionColumn, setDbPositionColumn] = useState<string | null>('')
+  const [dbProgressColumn, setDbProgressColumn] = useState<string | null>('')
+
   // Column City
   const [activeColCompany, setActiveColCompany] = useState<string | null>(null);
 
-  const handleToggleColCompany = (id: string) => {
+  const handleToggleColCompany = (id: string, brandColumn: string) => {
+    setDbBrandColumn(brandColumn)
     setActiveColCompany(activeColCompany === id ? null : id);
   };
 
   // Column City
-  const [activeColCity, setActiveColCity] = useState<string | null>(null);
+  const [activeColPosition, setActiveColPosition] = useState<string | null>(null);
 
-  const handleToggleColCity = (id: string) => {
-    setActiveColCity(activeColCity === id ? null : id);
+  const handleToggleColPosition = (id: string, dbPositionColumn:string) => {
+    setDbPositionColumn(dbPositionColumn)
+    setActiveColPosition(activeColPosition === id ? null : id);
   };
 
   // Column Progress
@@ -90,8 +97,6 @@ const Table: React.FC = () => {
       setNamaPerusahaanIsEmpty(true)
     }
   }
-  
-
 
   // Fetch Table
   const [data, setData] = useState<TableData[]>([]);
@@ -120,8 +125,7 @@ const Table: React.FC = () => {
     }
   }, [userId]);
 
-  // Edit Data
-  // Type (1)
+  // Edit Option
   const handleOptionSelect = async (option: string, rowId: string, column: string) => {
     if (option && userId && rowId && column) {
       try {
@@ -134,14 +138,29 @@ const Table: React.FC = () => {
     }
   };
 
-  // Edit Brand Name
-  const handleInputBrandNameChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const brandName = e.target.value
-    if (userId && activeColCompany) {
-      updateBrandName(brandName, userId, activeColCompany);
+  // Edit Brand Input
+  const handleUpdateInputBrand = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const brandValue = e.target.value
+    if (userId && activeColCompany && dbBrandColumn) {
+      updateInput(brandValue, userId, activeColCompany, dbBrandColumn);
     }
   };
-  
+
+  // Edit Position Input
+  const handleUpdateInputPosition = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const positionValue = e.target.value
+    if (userId && activeColPosition && dbPositionColumn) {
+      updateInput(positionValue, userId, activeColPosition, dbPositionColumn);
+    }
+  };
+
+  // Edit progress Input
+  const handleUpdateInputProgress = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const progressValue = e.target.value
+    if (userId && activeColProgress && dbProgressColumn) {
+      updateInput(progressValue, userId, activeColProgress, dbProgressColumn);
+    }
+  };
 
   return (
     <>
@@ -308,7 +327,7 @@ const Table: React.FC = () => {
                         {activeColCompany === items.rowId ? (
                           <input
                             value={items.mitra_brand_name}
-                            onChange={handleInputBrandNameChange}
+                            onChange={handleUpdateInputBrand}
                             type="text"
                             placeholder="Type here"
                             className="input input-bordered input-sm hover:border-black w-full max-w-xs"
@@ -324,7 +343,7 @@ const Table: React.FC = () => {
                             stroke="green"
                             className="scale-125 hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-1"
                             onClick={() => {
-                              handleToggleColCompany(items.rowId)
+                              handleToggleColCompany(items.rowId, "mitra_brand_name")
                             }}
                           >
                             <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
@@ -338,7 +357,7 @@ const Table: React.FC = () => {
                             stroke="currentColor"
                             className="hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-2"
                             onClick={() => {
-                              handleToggleColCompany(items.rowId)
+                              handleToggleColCompany(items.rowId, "mitra_brand_name")
                             }}
                           >
                             <path
@@ -451,23 +470,25 @@ const Table: React.FC = () => {
                     </td>
                     <td>
                       <div className='inline-flex'>
-                        {activeColCity === items.rowId ? (
+                        {activeColPosition === items.rowId ? (
                           <input
+                            value={items.nama_kegiatan}
+                            onChange={handleUpdateInputPosition}
                             type="text"
                             placeholder="Type here"
                             className="input input-bordered input-sm hover:border-black w-full max-w-xs"
                           />
                         ) : (
-                          <p>Fullstack Developer</p>
+                          <p>{items.nama_kegiatan}</p>
                         )}
-                        {activeColCity === items.rowId ? (
+                        {activeColPosition === items.rowId ? (
                            <svg 
                             xmlns="http://www.w3.org/2000/svg" 
                             fill="none" viewBox="0 0 24 24" 
                             strokeWidth={1.5} 
                             stroke="green"
                             className="ml-3 scale-125 hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-1.6"
-                            onClick={() => handleToggleColCity(items.rowId)}
+                            onClick={() => handleToggleColPosition(items.rowId, "nama_kegiatan")}
                           >
                             <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                           </svg>
@@ -479,7 +500,7 @@ const Table: React.FC = () => {
                             strokeWidth={1.5}
                             stroke="currentColor"
                             className="ml-3 hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-2"
-                            onClick={() => handleToggleColCity(items.rowId)}
+                            onClick={() => handleToggleColPosition(items.rowId, "nama_kegiatan")}
                           >
                             <path
                               strokeLinecap="round"
