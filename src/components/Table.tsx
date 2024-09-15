@@ -62,7 +62,7 @@ const Table: React.FC = () => {
   // Column City
   const [activeColPosition, setActiveColPosition] = useState<string | null>(null);
 
-  const handleToggleColPosition = (id: string, dbPositionColumn:string) => {
+  const handleToggleColPosition = (id: string, dbPositionColumn: string) => {
     setDbPositionColumn(dbPositionColumn)
     setActiveColPosition(activeColPosition === id ? null : id);
   };
@@ -70,7 +70,8 @@ const Table: React.FC = () => {
   // Column Progress
   const [activeColProgress, setActiveColProgress] = useState<string | null>(null);
 
-  const handleToggleColProgress = (id: string) => {
+  const handleToggleColProgress = (id: string, dbProgressColumn: string) => {
+    setDbProgressColumn(dbProgressColumn)
     setActiveColProgress(activeColProgress === id ? null : id);
   };
 
@@ -515,12 +516,14 @@ const Table: React.FC = () => {
                       <div className='inline-flex'>
                           {activeColProgress === items.rowId ? (
                               <input
+                              value={items.progress}
+                              onChange={handleUpdateInputProgress}
                               type="text"
                               placeholder="Type here"
                               className="input input-bordered input-sm hover:border-black w-full max-w-xs"
                               />
                           ) : (
-                              <p>Test TPA</p>
+                              <p>{items.progress}</p>
                           )}
                           {activeColProgress === items.rowId ? (
                               <svg 
@@ -529,7 +532,7 @@ const Table: React.FC = () => {
                                 strokeWidth={1.5} 
                                 stroke="green"
                                 className="ml-3 scale-125 hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-1.6"
-                                onClick={() => handleToggleColProgress(items.rowId)}
+                                onClick={() => handleToggleColProgress(items.rowId, "progress")}
                               >
                                 <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                               </svg>
@@ -541,7 +544,7 @@ const Table: React.FC = () => {
                               strokeWidth={1.5}
                               stroke="currentColor"
                               className="ml-3 hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-1"
-                              onClick={() => handleToggleColProgress(items.rowId)}
+                              onClick={() => handleToggleColProgress(items.rowId, "progress")}
                             >
                               <path
                                 strokeLinecap="round"
