@@ -5,7 +5,7 @@ import { ref, set, get, remove } from 'firebase/database';
 // Edit Option Change
 export const updateOption = async (option: string, userId: string, rowId: string, column: string): Promise<void> => {
   try {
-    if (!option || !userId || !rowId) {
+    if (!option || !userId || !rowId || !column) {
       throw new Error('Invalid');  // Throw error if inputs are invalid
     }
     

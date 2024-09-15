@@ -1,6 +1,8 @@
 import Image from 'next/image'
 import React from 'react'
 
+let linkSaweria = "https://saweria.co/davidcode";
+
 const Navbar = () => {
   return (
     <>
@@ -31,7 +33,6 @@ const Navbar = () => {
                 <li><a href='https://saweria.co/davidcode' target='_blank'>saweria</a></li>
             </ul>
             </li>
-            <li><a>Developed by David Dwiyanto</a></li>
             {/* <li><a>Item 3</a></li> */}
         </ul>
         </div>
@@ -46,11 +47,10 @@ const Navbar = () => {
                 <details>
                 <summary>Support Dev</summary>
                 <ul className="p-2 z-50">
-                    <li><a href='https://saweria.co/davidcode' target='_blank'>saweria</a></li>
+                    <li><a href={`${linkSaweria}`} target='_blank'>saweria</a></li>
                 </ul>
                 </details>
             </li>
-            <li><a>Developed by David Dwiyanto</a></li>
             {/* <li><a>Item 3</a></li> */}
             </ul>
         </div>
@@ -65,7 +65,7 @@ const Navbar = () => {
                 <Image
                     className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
                     alt="Tailwind CSS Navbar component"
-                    src="https://media.istockphoto.com/id/2004891062/photo/happy-mid-aged-business-woman-manager-handshaking-greeting-client-in-office.webp?b=1&s=612x612&w=0&k=20&c=ek3rg4EdqXf558uozPM8lhd_MYIfxAcSgvClWtw6u8U="
+                    src="https://images.unsplash.com/photo-1598935888738-cd2622bcd437?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                     width={180}
                     height={37}
                     priority
@@ -78,13 +78,14 @@ const Navbar = () => {
                 tabIndex={0}
                 className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
                 <li>
-                <a className="justify-between">
-                Profile
-                <span className="badge">New</span>
-                </a>
+                    <a className="justify-between">
+                        Profile (anonymous)
+                    </a>
                 </li>
-                <li><a>Settings</a></li>
-                <li><a>Logout</a></li>
+                <li>
+                    <a>Login (soon)</a>
+                </li>
+                <li><a className='text-gray-500'>Note: Data kamu akan otomatis terhapus dalam 30 hari/saat menghapus cache browser ini, login untuk menyimpan data kakak :D</a></li>
             </ul>
             
         </div>

@@ -6,6 +6,7 @@ import { addData } from '@/api/usersTable/addData/addData';
 import { onValue, ref} from 'firebase/database';
 import { db } from '@/config/firebase';
 import { updateInput, updateOption } from '@/api/usersTable/editData/editData';
+import { deleteItem } from '@/api/usersTable/deleteData/deleteData';
 
 interface TableData {
   rowId: string,
@@ -163,6 +164,15 @@ const Table: React.FC = () => {
     }
   };
 
+  // Delete Row Data
+  const [rowIdToDelete, setRowIdToDelete] = useState<string | null>('')
+  const [brandToDelete, setBrandToDelete] = useState<string | null>('')
+
+  const handleDeleteRowData = async (rowId: string, brandToDelete: string) => {
+    setRowIdToDelete(rowId)
+    setBrandToDelete(brandToDelete)
+  }
+
   return (
     <>
     {/* Modal Detail */}
@@ -266,8 +276,8 @@ const Table: React.FC = () => {
     {/* Put this part before </body> tag */}
     <dialog id="deleteModal" className="modal">
       <div className="modal-box">
-        <h3 className="font-bold text-lg">ang ang ang</h3>
-        <p className="py-4">ESC untuk menutup</p>
+        <h3 className="font-bold text-lg flex">Apa yakin menghapus List: <p className='text-sky-600 ml-2'>{brandToDelete}</p>?</h3>
+        <p className="py-4">ang ang ang</p>
         <div className="modal-action">
           <form method="dialog">
             {/* if there is a button in form, it will close the modal */}
@@ -275,7 +285,10 @@ const Table: React.FC = () => {
             <a className="btn bg-red-500 text-white hover:bg-red-600"
             onClick={() => {
               const modal = document.getElementById('deleteModal') as HTMLDialogElement;
-              modal.close(); // Close the modal when Hapus is clicked
+              modal.close();
+              if (rowIdToDelete && userId) {
+                deleteItem(rowIdToDelete, userId)
+              }
             }}>Hapus</a>
           </form>
         </div>
@@ -287,7 +300,7 @@ const Table: React.FC = () => {
       bg-base-100 w-auto shadow-xl"
       >
       <div className="card-body">
-        <div className="text-xl badge badge-ghost p-3">{data.length}/22</div>
+        <div className={`text-xl badge badge-ghost p-3 ${data.length !== 0 ? "" : "animate-pulse"}`}>{data.length !== 0 ? data.length : "..."}/22</div>
         <div className="inline-flex">
           <h2 className="card-title ml-1">List Perusahaan</h2>
           <button className="btn btn-sm ml-2 hover:scale-105 duration-150"
@@ -298,422 +311,466 @@ const Table: React.FC = () => {
             </svg>
           </button>
         </div>
-        <div className="overflow-x-auto">   
-          <table className="table">
-            {/* head */}
-            <thead>
-              <tr>
-                <th>No</th>
-                <th>Nama Perusahaan</th>
-                <th>Jenis</th>
-                <th>Posisi</th>
-                <th>Kemajuan</th>
-                <th>Status</th>
-                <th></th>
-              </tr>
-            </thead>
-            {/* body */}
-            {data.map((items, index) => {
-              const isItFirstRow = index === 0;
-              const isItLastRow = index === data.length - 1;
-              const isItLastSecondRow = index === data.length - 2;
-
-              return (
+        <div className="overflow-x-auto">
+        {data.length === 0 ? (
               <>
-                <tbody key={items.rowId}>
-                  <tr className='hover:bg-gray-100/65'>
-                    <td>{index + 1}</td>
-                    <td>
-                      <div className="flex items-center gap-3">
-                        {activeColCompany === items.rowId ? (
-                          <input
-                            value={items.mitra_brand_name}
-                            onChange={handleUpdateInputBrand}
-                            type="text"
-                            placeholder="Type here"
-                            className="input input-bordered input-sm hover:border-black w-full max-w-xs"
-                          />
-                        ) : (
-                          <div className="font-bold">{items.mitra_brand_name}</div>
-                        )}
-                        {activeColCompany === items.rowId ? (
-                           <svg 
-                            xmlns="http://www.w3.org/2000/svg" 
-                            fill="none" viewBox="0 0 24 24" 
-                            strokeWidth={1.5} 
-                            stroke="green"
-                            className="scale-125 hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-1"
-                            onClick={() => {
-                              handleToggleColCompany(items.rowId, "mitra_brand_name")
-                            }}
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                          </svg>
-                        ) : (
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth={1.5}
-                            stroke="currentColor"
-                            className="hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-2"
-                            onClick={() => {
-                              handleToggleColCompany(items.rowId, "mitra_brand_name")
-                            }}
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M16.862 4.487l1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487z"
-                            />
-                          </svg>
-                        )}
-                      </div>
-                    </td>
-                    <td>
-                    {isItFirstRow ? (
-                        <>
-                          <div className="dropdown mr-2">
-                            <div tabIndex={0} role="button" className={`btn btn-sm
-                            ${items.name_ref_kegiatan === "Studi Independen" ? 'bg-sky-400 text-white hover:bg-sky-500' :
-                              items.name_ref_kegiatan === "Magang" ? 'bg-gray-500 text-white hover:bg-gray-600' : ""}`}>
-                              {items.name_ref_kegiatan ? items.name_ref_kegiatan : "Opsi"}
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                strokeWidth={1.5}
-                                stroke="currentColor"
-                                className="size-5"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="m19.5 8.25-7.5 7.5-7.5-7.5"
-                                />
-                              </svg>
-                            </div>
-                            <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-                              <li>
-                                <a onClick={() => handleOptionSelect('Studi Independen', items.rowId, "name_ref_kegiatan")}>Studi Independen</a>
-                              </li>
-                              <li>
-                                <a onClick={() => handleOptionSelect('Magang', items.rowId, "name_ref_kegiatan")}>Magang</a>
-                              </li>
-                            </ul>
-                          </div> 
-                        </>
-                      ) : isItLastRow || isItLastSecondRow ?(
-                        <>
-                          <div className="dropdown dropdown-right dropdown-end mr-2">
-                          <div tabIndex={0} role="button" className={`btn btn-sm
-                            ${items.name_ref_kegiatan === "Studi Independen" ? 'bg-sky-400 text-white hover:bg-sky-500' :
-                              items.name_ref_kegiatan === "Magang" ? 'bg-gray-500 text-white hover:bg-gray-600' : ""}`}>
-                              {items.name_ref_kegiatan ? items.name_ref_kegiatan : "Opsi"}
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                strokeWidth={1.5}
-                                stroke="currentColor"
-                                className="size-5"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="m19.5 8.25-7.5 7.5-7.5-7.5"
-                                />
-                              </svg>
-                            </div>
-                            <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-                              <li>
-                                <a onClick={() => handleOptionSelect('Studi Independen', items.rowId, "name_ref_kegiatan")}>Studi Independen</a>
-                              </li>
-                              <li>
-                                <a onClick={() => handleOptionSelect('Magang', items.rowId, "name_ref_kegiatan")}>Magang</a>
-                              </li>
-                            </ul>
-                          </div> 
-                        </>
-                      ) : (
-                        <>
-                          <div className="dropdown mr-2">
-                          <div tabIndex={0} role="button" className={`btn btn-sm
-                            ${items.name_ref_kegiatan === "Studi Independen" ? 'bg-sky-400 text-white hover:bg-sky-500' :
-                              items.name_ref_kegiatan === "Magang" ? 'bg-gray-500 text-white hover:bg-gray-600' : ""}`}>
-                              {items.name_ref_kegiatan ? items.name_ref_kegiatan : "Opsi"}
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                strokeWidth={1.5}
-                                stroke="currentColor"
-                                className="size-5"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="m19.5 8.25-7.5 7.5-7.5-7.5"
-                                />
-                              </svg>
-                            </div>
-                            <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-                              <li>
-                                <a onClick={() => handleOptionSelect('Studi Independen', items.rowId, "name_ref_kegiatan")}>Studi Independen</a>
-                              </li>
-                              <li>
-                                <a onClick={() => handleOptionSelect('Magang', items.rowId, "name_ref_kegiatan")}>Magang</a>
-                              </li>
-                            </ul>
-                          </div>  
-                        </>
-                      )}
-                    </td>
-                    <td>
-                      <div className='inline-flex'>
-                        {activeColPosition === items.rowId ? (
-                          <input
-                            value={items.nama_kegiatan}
-                            onChange={handleUpdateInputPosition}
-                            type="text"
-                            placeholder="Type here"
-                            className="input input-bordered input-sm hover:border-black w-full max-w-xs"
-                          />
-                        ) : (
-                          <p>{items.nama_kegiatan}</p>
-                        )}
-                        {activeColPosition === items.rowId ? (
-                           <svg 
-                            xmlns="http://www.w3.org/2000/svg" 
-                            fill="none" viewBox="0 0 24 24" 
-                            strokeWidth={1.5} 
-                            stroke="green"
-                            className="ml-3 scale-125 hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-1.6"
-                            onClick={() => handleToggleColPosition(items.rowId, "nama_kegiatan")}
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                          </svg>
-                        ) : (
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth={1.5}
-                            stroke="currentColor"
-                            className="ml-3 hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-2"
-                            onClick={() => handleToggleColPosition(items.rowId, "nama_kegiatan")}
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M16.862 4.487l1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487z"
-                            />
-                          </svg>
-                        )}
-                      </div>
-                    </td>
-                    <td>
-                      <div className='inline-flex'>
-                          {activeColProgress === items.rowId ? (
-                              <input
-                              value={items.progress}
-                              onChange={handleUpdateInputProgress}
-                              type="text"
-                              placeholder="Type here"
-                              className="input input-bordered input-sm hover:border-black w-full max-w-xs"
-                              />
-                          ) : (
-                              <p>{items.progress}</p>
-                          )}
-                          {activeColProgress === items.rowId ? (
-                              <svg 
-                                xmlns="http://www.w3.org/2000/svg" 
-                                fill="none" viewBox="0 0 24 24" 
-                                strokeWidth={1.5} 
-                                stroke="green"
-                                className="ml-3 scale-125 hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-1.6"
-                                onClick={() => handleToggleColProgress(items.rowId, "progress")}
-                              >
-                                <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                              </svg>
-                          ) : (
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              strokeWidth={1.5}
-                              stroke="currentColor"
-                              className="ml-3 hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-1"
-                              onClick={() => handleToggleColProgress(items.rowId, "progress")}
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487z"
-                              />
-                            </svg>
-                          )}
-                      </div>
-                    </td>
-                    <td>
-                    {isItFirstRow ? (
-                      <>
-                        <div className="dropdown mr-2">
-                          <div tabIndex={0} role="button" 
-                          className={`btn btn-sm 
-                            ${items.status === "Diterima" ? 'bg-green-500 text-white hover:bg-green-600' :
-                              items.status === "Diproses" ? 'bg-yellow-400 hover:text-gray-700 hover:bg-yellow-500' :
-                              items.status === "Terdaftar" ? 'bg-sky-400 text-white hover:bg-sky-500' :
-                              items.status === "Di Ghosting" ? '' :
-                              "Opsi"}`}>
-                            {items.status ? items.status : "Opsi"}
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                            </svg>
-                          </div>
-                          <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-                            <li>
-                              <a onClick={() => handleOptionSelect('Diterima', items.rowId, "status")}>
-                                Diterima
-                              </a>
-                            </li>
-                            <li>
-                              <a onClick={() => handleOptionSelect('Diproses', items.rowId, "status")}>
-                                Diproses
-                              </a>
-                            </li>
-                            <li>
-                              <a onClick={() => handleOptionSelect('Terdaftar', items.rowId, "status")}>
-                                Terdaftar
-                              </a>
-                            </li>
-                            <li>
-                              <a onClick={() => handleOptionSelect('Di Ghosting', items.rowId, "status")}>
-                                Di Ghosting
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
-                      </>
-                    ) : isItLastRow || isItLastSecondRow ? (
-                      <>
-                        <div className="dropdown dropdown-left dropdown-end mr-2">
-                          <div tabIndex={0} role="button"
-                          className={`btn btn-sm 
-                            ${items.status === "Diterima" ? 'bg-green-500 text-white hover:bg-green-600' :
-                              items.status === "Diproses" ? 'bg-yellow-400 hover:text-gray-700 hover:bg-yellow-500' :
-                              items.status === "Terdaftar" ? 'bg-sky-400 text-white hover:bg-sky-500' :
-                              items.status === "Di Ghosting" ? '' :
-                              "Opsi"}`}>
-                          {items.status ? items.status : "Opsi"}
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                              </svg>
-                          </div>
-                          <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-                            <li>
-                              <a onClick={() => handleOptionSelect('Diterima', items.rowId, "status")}>
-                                Diterima
-                              </a>
-                            </li>
-                            <li>
-                              <a onClick={() => handleOptionSelect('Diproses', items.rowId, "status")}>
-                                Diproses
-                              </a>
-                            </li>
-                            <li>
-                              <a onClick={() => handleOptionSelect('Terdaftar', items.rowId, "status")}>
-                                Terdaftar
-                              </a>
-                            </li>
-                            <li>
-                              <a onClick={() => handleOptionSelect('Di Ghosting', items.rowId, "status")}>
-                                Di Ghosting
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div className="dropdown mr-2">
-                          <div tabIndex={0} role="button"
-                          className={`btn btn-sm 
-                            ${items.status === "Diterima" ? 'bg-green-500 text-white hover:bg-green-600' :
-                              items.status === "Diproses" ? 'bg-yellow-400 hover:text-gray-700 hover:bg-yellow-500' :
-                              items.status === "Terdaftar" ? 'bg-sky-400 text-white hover:bg-sky-500' :
-                              items.status === "Di Ghosting" ? '' :
-                              "Opsi"}`}>
-                          {items.status ? items.status : "Opsi"}
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                            </svg>
-                          </div>
-                          <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-                            <li>
-                              <a onClick={() => handleOptionSelect('Diterima', items.rowId, "status")}>
-                                Diterima
-                              </a>
-                            </li>
-                            <li>
-                              <a onClick={() => handleOptionSelect('Diproses', items.rowId, "status")}>
-                                Diproses
-                              </a>
-                            </li>
-                            <li>
-                              <a onClick={() => handleOptionSelect('Terdaftar', items.rowId, "status")}>
-                                Terdaftar
-                              </a>
-                            </li>
-                            <li>
-                              <a onClick={() => handleOptionSelect('Di Ghosting', items.rowId, "status")}>
-                                Di Ghosting
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
-                      </>
-                    )}
-                    
-                    </td>
-                    <th>
-                      <div className='inline-flex'>
-                        <button 
-                          className="btn btn-ghost btn-xs" 
-                          onClick={() => (document.getElementById('detailModal') as HTMLDialogElement)?.showModal()}>
-                          detail
-                        </button>
-                        <svg
-                          onClick={() => (document.getElementById('deleteModal') as HTMLDialogElement)?.showModal()}
-                          xmlns="http://www.w3.org/2000/svg" 
-                          fill="none" 
-                          viewBox="0 0 24 24" 
-                          strokeWidth={1.5} 
-                          stroke="red" 
-                          className="scale-110 hover:scale-125 hover:bg-gray-200 hover:rounded-md hover:cursor-pointer duration-150 size-6 p-1"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                        </svg>
-                      </div>
-                    </th>
-                  </tr>
-                </tbody>
+                <table className="table">
+                  {/* head */}
+                  <thead>
+                    <tr>
+                      <th>No</th>
+                      <th>Nama Perusahaan</th>
+                      <th>Jenis</th>
+                      <th>Posisi</th>
+                      <th>Kemajuan</th>
+                      <th>Status</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  {/* body */}
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p className="animate-pulse text-lg">Tidak ada data...</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                  {/* foot */}
+                  <tfoot className={`h-56`}>
+                    <tr className={`hidden`}>
+                      <th>No</th>
+                      <th>Nama Perusahaan</th>
+                      <th>Jenis</th>
+                      <th>Posisi</th>
+                      <th>Kemajuan</th>
+                      <th>Status</th>
+                      <th></th>
+                    </tr>
+                  </tfoot>
+                </table>
               </>
-              )
-            })}
-            {/* foot */}
-            <tfoot className={`${data.length >= 3 ? '' : 'h-56'}`}>
-              <tr className={`${data.length >= 3 ? '' : 'hidden'}`}>
-                <th>No</th>
-                <th>Nama Perusahaan</th>
-                <th>Jenis</th>
-                <th>Posisi</th>
-                <th>Kemajuan</th>
-                <th>Status</th>
-                <th></th>
-              </tr>
-            </tfoot>
-          </table>
+            ) : (
+              <>
+                <table className="table">
+                  {/* head */}
+                  <thead>
+                    <tr>
+                      <th>No</th>
+                      <th>Nama Perusahaan</th>
+                      <th>Jenis</th>
+                      <th>Posisi</th>
+                      <th>Kemajuan</th>
+                      <th>Status</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  {/* body */}
+                  {data.map((items, index) => {
+                    const isItFirstRow = index === 0;
+                    const isItLastRow = index === data.length - 1;
+                    const isItLastSecondRow = index === data.length - 2;
+
+                    return (
+                    <>
+                      <tbody key={items.rowId}>
+                        <tr className='hover:bg-gray-100/65'>
+                          <td>{index + 1}</td>
+                          <td>
+                            <div className="flex items-center gap-3">
+                              {activeColCompany === items.rowId ? (
+                                <input
+                                  value={items.mitra_brand_name}
+                                  onChange={handleUpdateInputBrand}
+                                  type="text"
+                                  placeholder="Type here"
+                                  className="input input-bordered input-sm hover:border-black w-full max-w-xs"
+                                />
+                              ) : (
+                                <div className="font-bold">{items.mitra_brand_name}</div>
+                              )}
+                              {activeColCompany === items.rowId ? (
+                                <svg 
+                                  xmlns="http://www.w3.org/2000/svg" 
+                                  fill="none" viewBox="0 0 24 24" 
+                                  strokeWidth={1.5} 
+                                  stroke="green"
+                                  className="scale-125 hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-1"
+                                  onClick={() => {
+                                    handleToggleColCompany(items.rowId, "mitra_brand_name")
+                                  }}
+                                >
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                </svg>
+                              ) : (
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  strokeWidth={1.5}
+                                  stroke="currentColor"
+                                  className="hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-2"
+                                  onClick={() => {
+                                    handleToggleColCompany(items.rowId, "mitra_brand_name")
+                                  }}
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M16.862 4.487l1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487z"
+                                  />
+                                </svg>
+                              )}
+                            </div>
+                          </td>
+                          <td>
+                          {isItFirstRow ? (
+                              <>
+                                <div className="dropdown mr-2">
+                                  <div tabIndex={0} role="button" className={`btn btn-sm
+                                  ${items.name_ref_kegiatan === "Studi Independen" ? 'bg-sky-400 text-white hover:bg-sky-500' :
+                                    items.name_ref_kegiatan === "Magang" ? 'bg-gray-500 text-white hover:bg-gray-600' : ""}`}>
+                                    {items.name_ref_kegiatan ? items.name_ref_kegiatan : "Opsi"}
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      strokeWidth={1.5}
+                                      stroke="currentColor"
+                                      className="size-5 hidden xl:block"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                                      />
+                                    </svg>
+                                  </div>
+                                  <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                                    <li>
+                                      <a onClick={() => handleOptionSelect('Studi Independen', items.rowId, "name_ref_kegiatan")}>Studi Independen</a>
+                                    </li>
+                                    <li>
+                                      <a onClick={() => handleOptionSelect('Magang', items.rowId, "name_ref_kegiatan")}>Magang</a>
+                                    </li>
+                                  </ul>
+                                </div> 
+                              </>
+                            ) : isItLastRow || isItLastSecondRow ?(
+                              <>
+                                <div className="dropdown dropdown-right dropdown-end mr-2">
+                                <div tabIndex={0} role="button" className={`btn btn-sm
+                                  ${items.name_ref_kegiatan === "Studi Independen" ? 'bg-sky-400 text-white hover:bg-sky-500' :
+                                    items.name_ref_kegiatan === "Magang" ? 'bg-gray-500 text-white hover:bg-gray-600' : ""}`}>
+                                    {items.name_ref_kegiatan ? items.name_ref_kegiatan : "Opsi"}
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      strokeWidth={1.5}
+                                      stroke="currentColor"
+                                      className="size-5 hidden xl:block"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                                      />
+                                    </svg>
+                                  </div>
+                                  <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                                    <li>
+                                      <a onClick={() => handleOptionSelect('Studi Independen', items.rowId, "name_ref_kegiatan")}>Studi Independen</a>
+                                    </li>
+                                    <li>
+                                      <a onClick={() => handleOptionSelect('Magang', items.rowId, "name_ref_kegiatan")}>Magang</a>
+                                    </li>
+                                  </ul>
+                                </div> 
+                              </>
+                            ) : (
+                              <>
+                                <div className="dropdown mr-2">
+                                <div tabIndex={0} role="button" className={`btn btn-sm
+                                  ${items.name_ref_kegiatan === "Studi Independen" ? 'bg-sky-400 text-white hover:bg-sky-500' :
+                                    items.name_ref_kegiatan === "Magang" ? 'bg-gray-500 text-white hover:bg-gray-600' : ""}`}>
+                                    {items.name_ref_kegiatan ? items.name_ref_kegiatan : "Opsi"}
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      strokeWidth={1.5}
+                                      stroke="currentColor"
+                                      className="size-5 hidden xl:block"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                                      />
+                                    </svg>
+                                  </div>
+                                  <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                                    <li>
+                                      <a onClick={() => handleOptionSelect('Studi Independen', items.rowId, "name_ref_kegiatan")}>Studi Independen</a>
+                                    </li>
+                                    <li>
+                                      <a onClick={() => handleOptionSelect('Magang', items.rowId, "name_ref_kegiatan")}>Magang</a>
+                                    </li>
+                                  </ul>
+                                </div>  
+                              </>
+                            )}
+                          </td>
+                          <td>
+                            <div className='inline-flex'>
+                              {activeColPosition === items.rowId ? (
+                                <input
+                                  value={items.nama_kegiatan}
+                                  onChange={handleUpdateInputPosition}
+                                  type="text"
+                                  placeholder="Type here"
+                                  className="input input-bordered input-sm hover:border-black w-full max-w-xs"
+                                />
+                              ) : (
+                                <p className={`${items.nama_kegiatan ? "" : "text-gray-400"}`}>{items.nama_kegiatan ? items.nama_kegiatan : "posisi yang di lamar"}</p>
+                              )}
+                              {activeColPosition === items.rowId ? (
+                                <svg 
+                                  xmlns="http://www.w3.org/2000/svg" 
+                                  fill="none" viewBox="0 0 24 24" 
+                                  strokeWidth={1.5} 
+                                  stroke="green"
+                                  className="ml-3 scale-125 hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-1.6"
+                                  onClick={() => handleToggleColPosition(items.rowId, "nama_kegiatan")}
+                                >
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                </svg>
+                              ) : (
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  strokeWidth={1.5}
+                                  stroke="currentColor"
+                                  className="ml-3 hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-2"
+                                  onClick={() => handleToggleColPosition(items.rowId, "nama_kegiatan")}
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M16.862 4.487l1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487z"
+                                  />
+                                </svg>
+                              )}
+                            </div>
+                          </td>
+                          <td>
+                            <div className='inline-flex'>
+                                {activeColProgress === items.rowId ? (
+                                    <input
+                                    value={items.progress}
+                                    onChange={handleUpdateInputProgress}
+                                    type="text"
+                                    placeholder="Type here"
+                                    className="input input-bordered input-sm hover:border-black w-full max-w-xs"
+                                    />
+                                ) : (
+                                    <p className={`${items.progress ? "" : "text-gray-400"}`}>{items.progress ? items.progress : "proses/tahapan seleksi"}</p>
+                                )}
+                                {activeColProgress === items.rowId ? (
+                                    <svg 
+                                      xmlns="http://www.w3.org/2000/svg" 
+                                      fill="none" viewBox="0 0 24 24" 
+                                      strokeWidth={1.5} 
+                                      stroke="green"
+                                      className="ml-3 scale-125 hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-1.6"
+                                      onClick={() => handleToggleColProgress(items.rowId, "progress")}
+                                    >
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                    </svg>
+                                ) : (
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth={1.5}
+                                    stroke="currentColor"
+                                    className="ml-3 hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-1"
+                                    onClick={() => handleToggleColProgress(items.rowId, "progress")}
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      d="M16.862 4.487l1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487z"
+                                    />
+                                  </svg>
+                                )}
+                            </div>
+                          </td>
+                          <td>
+                          {isItFirstRow ? (
+                            <>
+                              <div className="dropdown mr-2">
+                                <div tabIndex={0} role="button" 
+                                className={`btn btn-sm 
+                                  ${items.status === "Diterima" ? 'bg-green-500 text-white hover:bg-green-600' :
+                                    items.status === "Diproses" ? 'bg-yellow-400 hover:text-gray-700 hover:bg-yellow-500' :
+                                    items.status === "Terdaftar" ? 'bg-sky-400 text-white hover:bg-sky-500' :
+                                    items.status === "Di Ghosting" ? '' :
+                                    "Opsi"}`}>
+                                  {items.status ? items.status : "Opsi"}
+                                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5 hidden xl:block">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
+                                  </svg>
+                                </div>
+                                <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                                  <li>
+                                    <a onClick={() => handleOptionSelect('Diterima', items.rowId, "status")}>
+                                      Diterima
+                                    </a>
+                                  </li>
+                                  <li>
+                                    <a onClick={() => handleOptionSelect('Diproses', items.rowId, "status")}>
+                                      Diproses
+                                    </a>
+                                  </li>
+                                  <li>
+                                    <a onClick={() => handleOptionSelect('Terdaftar', items.rowId, "status")}>
+                                      Terdaftar
+                                    </a>
+                                  </li>
+                                  <li>
+                                    <a onClick={() => handleOptionSelect('Di Ghosting', items.rowId, "status")}>
+                                      Di Ghosting
+                                    </a>
+                                  </li>
+                                </ul>
+                              </div>
+                            </>
+                          ) : isItLastRow || isItLastSecondRow ? (
+                            <>
+                              <div className="dropdown dropdown-left dropdown-end mr-2">
+                                <div tabIndex={0} role="button"
+                                className={`btn btn-sm 
+                                  ${items.status === "Diterima" ? 'bg-green-500 text-white hover:bg-green-600' :
+                                    items.status === "Diproses" ? 'bg-yellow-400 hover:text-gray-700 hover:bg-yellow-500' :
+                                    items.status === "Terdaftar" ? 'bg-sky-400 text-white hover:bg-sky-500' :
+                                    items.status === "Di Ghosting" ? '' :
+                                    "Opsi"}`}>
+                                {items.status ? items.status : "Opsi"}
+                                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5 hidden xl:block">
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                    </svg>
+                                </div>
+                                <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                                  <li>
+                                    <a onClick={() => handleOptionSelect('Diterima', items.rowId, "status")}>
+                                      Diterima
+                                    </a>
+                                  </li>
+                                  <li>
+                                    <a onClick={() => handleOptionSelect('Diproses', items.rowId, "status")}>
+                                      Diproses
+                                    </a>
+                                  </li>
+                                  <li>
+                                    <a onClick={() => handleOptionSelect('Terdaftar', items.rowId, "status")}>
+                                      Terdaftar
+                                    </a>
+                                  </li>
+                                  <li>
+                                    <a onClick={() => handleOptionSelect('Di Ghosting', items.rowId, "status")}>
+                                      Di Ghosting
+                                    </a>
+                                  </li>
+                                </ul>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <div className="dropdown mr-2">
+                                <div tabIndex={0} role="button"
+                                className={`btn btn-sm 
+                                  ${items.status === "Diterima" ? 'bg-green-500 text-white hover:bg-green-600' :
+                                    items.status === "Diproses" ? 'bg-yellow-400 hover:text-gray-700 hover:bg-yellow-500' :
+                                    items.status === "Terdaftar" ? 'bg-sky-400 text-white hover:bg-sky-500' :
+                                    items.status === "Di Ghosting" ? '' :
+                                    "Opsi"}`}>
+                                {items.status ? items.status : "Opsi"}
+                                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5 hidden xl:block">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                  </svg>
+                                </div>
+                                <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                                  <li>
+                                    <a onClick={() => handleOptionSelect('Diterima', items.rowId, "status")}>
+                                      Diterima
+                                    </a>
+                                  </li>
+                                  <li>
+                                    <a onClick={() => handleOptionSelect('Diproses', items.rowId, "status")}>
+                                      Diproses
+                                    </a>
+                                  </li>
+                                  <li>
+                                    <a onClick={() => handleOptionSelect('Terdaftar', items.rowId, "status")}>
+                                      Terdaftar
+                                    </a>
+                                  </li>
+                                  <li>
+                                    <a onClick={() => handleOptionSelect('Di Ghosting', items.rowId, "status")}>
+                                      Di Ghosting
+                                    </a>
+                                  </li>
+                                </ul>
+                              </div>
+                            </>
+                          )}
+                          
+                          </td>
+                          <th>
+                            <div className='inline-flex'>
+                              <button 
+                                className="hover:bg-gray-200 bg-gray-200 rounded-md btn-xs text-gray-400 mr-2" 
+                                disabled
+                                onClick={() => (document.getElementById('detailModal') as HTMLDialogElement)?.showModal()}>
+                                detail (soon)
+                              </button>
+                              <svg
+                                onClick={() => {(document.getElementById('deleteModal') as HTMLDialogElement)?.showModal()
+                                  handleDeleteRowData(items.rowId, items.mitra_brand_name)
+                                }}
+                                xmlns="http://www.w3.org/2000/svg" 
+                                fill="none" 
+                                viewBox="0 0 24 24" 
+                                strokeWidth={1.5} 
+                                stroke="red" 
+                                className="scale-110 hover:scale-125 hover:bg-gray-200 hover:rounded-md hover:cursor-pointer duration-150 size-6 p-1"
+                              >
+                                <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                              </svg>
+                            </div>
+                          </th>
+                        </tr>
+                      </tbody>
+                    </>
+                    )
+                  })}
+                  {/* foot */}
+                  <tfoot className={`${data.length >= 3 ? '' : 'h-56'}`}>
+                    <tr className={`${data.length >= 3 ? '' : 'hidden'}`}>
+                      <th>No</th>
+                      <th>Nama Perusahaan</th>
+                      <th>Jenis</th>
+                      <th>Posisi</th>
+                      <th>Kemajuan</th>
+                      <th>Status</th>
+                      <th></th>
+                    </tr>
+                  </tfoot>
+                </table>
+              </>
+            )} 
         </div>
       </div>
     </div>
