@@ -85,7 +85,7 @@ const Navbar = () => {
                 <li>
                     <a>Login (soon)</a>
                 </li>
-                <li><a className='text-gray-500'>Note: Data kamu akan otomatis terhapus dalam 30 hari/saat menghapus cache browser ini, login untuk menyimpan data kakak :D</a></li>
+                <li><a className='text-gray-500'>Note: Data akan otomatis terhapus dalam 30 hari/saat menghapus cache browser ini, login untuk menyimpan data kakak :D</a></li>
             </ul>
             
         </div>
