@@ -617,7 +617,7 @@ const Table: React.FC = () => {
                       <th>Untuk</th>
                       <th>Bisa</th>
                       <th>Berkembang</th>
-                      <th>~anime apa gitu</th>
+                      <th>~karakter anime</th>
                     </tr>
                   </thead>
                   {/* body */}
