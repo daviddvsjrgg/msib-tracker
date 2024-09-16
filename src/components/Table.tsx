@@ -326,285 +326,285 @@ const Table: React.FC = () => {
             </svg>
           </button>
         </div>
-        <div className='mt-2'>
-        <div className="dropdown mr-2">
-          <div tabIndex={0} role="button" className={`btn btn-xs bg-white border-gray-400`}>
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
-          </svg>
-            Mode
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="size-5 hidden xl:block"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="m19.5 8.25-7.5 7.5-7.5-7.5"
-              />
-            </svg>
-          </div>
-          <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-            <li onClick={() => {
-              localStorage.setItem('modeView', "edit")
-              setModeView("edit")
-            }}
-             className={`mt-1 ${modeView === "edit" ? "bg-gray-200 rounded-md" : ""}`}>
-              <div className='justify-between'>
-                <a>
-                  Edit
-                </a>
-                {modeView === "edit" && (
-                  <>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="green" className="size-4">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                    </svg>
-                  </>
-                )}
-              </div>
-            </li>
-            <li onClick={() => {
-              localStorage.setItem('modeView', "view")
-              setModeView("view")
-            }} 
-                  className={`mt-1 ${modeView === "view" ? "bg-gray-200 rounded-md" : ""}`}>
-              <div className='justify-between'>
-                <a>
-                  Lihat Doang
-                </a>
-                {modeView === "view" && (
-                  <>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="green" className="size-4">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                    </svg>
-                  </>
-                )}
-              </div>
-            </li>
-          </ul>
-        </div> 
-        <div className="dropdown mr-2">
-          <div tabIndex={0} role="button" className={`btn btn-xs bg-white border-gray-400`}>
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
-          </svg>
-            Jenis
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="size-5 hidden xl:block"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="m19.5 8.25-7.5 7.5-7.5-7.5"
-              />
-            </svg>
-          </div>
-          <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-            <li className={`mt-1 ${sortType === "Studi Independen" ? "bg-gray-200 rounded-md" : ""}`} onClick={() => {
-              const sortedData = [...data].sort((a, b) => {
-                // Custom sorting logic based on the "name" property
-                if (a.name_ref_kegiatan === 'Studi Independen' && b.name_ref_kegiatan !== 'Studi Independen') {
-                  return -1;
-                } else if (a.name_ref_kegiatan !== 'Studi Independen' && b.name_ref_kegiatan === 'Studi Independen') {
-                  return 1;
-                }
-                return 0; // No change in order if names are the same
-              });
-              
-              setStatus("")
-              setData(sortedData);
-              setSortType("Studi Independen")
-            }}>
-              <div className='justify-between'>
-                <a>
-                  Studi Independen
-                </a>
-                {sortType === "Studi Independen" && (
-                  <>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="green" className="size-4">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                    </svg>
-                  </>
-                )}
-              </div>
-            </li>
-            <li className={`mt-1 ${sortType === "Magang" ? "bg-gray-200 rounded-md" : ""}`} onClick={() => {
-              const sortedData = [...data].sort((a, b) => {
-                // Custom sorting logic based on the "name" property
-                if (a.name_ref_kegiatan === 'Magang' && b.name_ref_kegiatan !== 'Magang') {
-                  return -1;
-                } else if (a.name_ref_kegiatan !== 'Magang' && b.name_ref_kegiatan === 'Magang') {
-                  return 1;
-                }
-                return 0; // No change in order if names are the same
-              });
-              
-              setStatus("")
-              setData(sortedData);
-              setSortType("Magang")
-            }}>
-            <div className='justify-between'>
-                <a>
-                  Magang
-                </a>
-                {sortType === "Magang" && (
-                  <>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="green" className="size-4">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                    </svg>
-                  </>
-                )}
-              </div>
-            </li>
-          </ul>
-        </div> 
-        <div className="dropdown mr-2">
-          <div tabIndex={0} role="button" className={`btn btn-xs bg-white border-gray-400`}>
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5m.75-9 3-3 2.148 2.148A12.061 12.061 0 0 1 16.5 7.605" />
-          </svg>
-            Status
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="size-5 hidden xl:block"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="m19.5 8.25-7.5 7.5-7.5-7.5"
-              />
-            </svg>
-          </div>
-          <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-          <li className={`mt-1 ${sortStatus === "Diterima" ? "bg-gray-200 rounded-md" : ""}`} onClick={() => {
-              const sortedData = [...data].sort((a, b) => {
-                // Custom sorting logic based on the "name" property
-                if (a.status === 'Diterima' && b.status !== 'Diterima') {
-                  return -1;
-                } else if (a.status !== 'Diterima' && b.status === 'Diterima') {
-                  return 1;
-                }
-                return 0; // No change in order if names are the same
-              });
-              
-              setSortType("")
-              setData(sortedData);
-              setStatus("Diterima")
-            }}>
-              <div className='justify-between'>
-                <a>
-                  Diterima
-                </a>
-                {sortStatus === "Diterima" && (
-                  <>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="green" className="size-4">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                    </svg>
-                  </>
-                )}
-              </div>
-            </li>
-            <li className={`mt-1 ${sortStatus === "Diproses" ? "bg-gray-200 rounded-md" : ""}`} onClick={() => {
-              const sortedData = [...data].sort((a, b) => {
-                // Custom sorting logic based on the "name" property
-                if (a.status === 'Diproses' && b.status !== 'Diproses') {
-                  return -1;
-                } else if (a.status !== 'Diproses' && b.status === 'Diproses') {
-                  return 1;
-                }
-                return 0; // No change in order if names are the same
-              });
-              
-              setSortType("")
-              setData(sortedData);
-              setStatus("Diproses")
-            }}>
-              <div className='justify-between'>
-                <a>
-                  Diproses
-                </a>
-                {sortStatus === "Diproses" && (
-                  <>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="green" className="size-4">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                    </svg>
-                  </>
-                )}
-              </div>
-            </li>
-            <li className={`mt-1 ${sortStatus === "Terdaftar" ? "bg-gray-200 rounded-md" : ""}`} onClick={() => {
-              const sortedData = [...data].sort((a, b) => {
-                // Custom sorting logic based on the "name" property
-                if (a.status === 'Terdaftar' && b.status !== 'Terdaftar') {
-                  return -1;
-                } else if (a.status !== 'Terdaftar' && b.status === 'Terdaftar') {
-                  return 1;
-                }
-                return 0; // No change in order if names are the same
-              });
-              
-              setSortType("")
-              setData(sortedData);
-              setStatus("Terdaftar")
-            }}>
-              <div className='justify-between'>
-                <a>
-                  Terdaftar
-                </a>
-                {sortStatus === "Terdaftar" && (
-                  <>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="green" className="size-4">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                    </svg>
-                  </>
-                )}
-              </div>
-            </li>
-            <li className={`mt-1 ${sortStatus === "Di Ghosting" ? "bg-gray-200 rounded-md" : ""}`} onClick={() => {
-              const sortedData = [...data].sort((a, b) => {
-                // Custom sorting logic based on the "name" property
-                if (a.status === 'Di Ghosting' && b.status !== 'Di Ghosting') {
-                  return -1;
-                } else if (a.status !== 'Di Ghosting' && b.status === 'Di Ghosting') {
-                  return 1;
-                }
-                return 0; // No change in order if names are the same
-              });
-              
-              setSortType("")
-              setData(sortedData);
-              setStatus("Di Ghosting")
-            }}>
-              <div className='justify-between'>
-                <a>
-                  Di Ghosting
-                </a>
-                {sortStatus === "Di Ghosting" && (
-                  <>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="green" className="size-4">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                    </svg>
-                  </>
-                )}
-              </div>
-            </li>
-          </ul>
-        </div> 
-        </div>
         <div className="overflow-x-auto">
+          <div className='mt-2'>
+          <div className="dropdown">
+            <div tabIndex={0} role="button" className={`btn btn-xs bg-white border-gray-400`}>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
+            </svg>
+              Mode
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="size-5 hidden xl:block"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                />
+              </svg>
+            </div>
+            <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+              <li onClick={() => {
+                localStorage.setItem('modeView', "edit")
+                setModeView("edit")
+              }}
+              className={`mt-1 ${modeView === "edit" ? "bg-gray-200 rounded-md" : ""}`}>
+                <div className='justify-between'>
+                  <a>
+                    Edit
+                  </a>
+                  {modeView === "edit" && (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="green" className="size-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                      </svg>
+                    </>
+                  )}
+                </div>
+              </li>
+              <li onClick={() => {
+                localStorage.setItem('modeView', "view")
+                setModeView("view")
+              }} 
+                    className={`mt-1 ${modeView === "view" ? "bg-gray-200 rounded-md" : ""}`}>
+                <div className='justify-between'>
+                  <a>
+                    Lihat Doang
+                  </a>
+                  {modeView === "view" && (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="green" className="size-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                      </svg>
+                    </>
+                  )}
+                </div>
+              </li>
+            </ul>
+          </div> 
+          <div className="dropdown mx-2">
+            <div tabIndex={0} role="button" className={`btn btn-xs bg-white border-gray-400`}>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
+            </svg>
+              Jenis
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="size-5 hidden xl:block"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                />
+              </svg>
+            </div>
+            <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+              <li className={`mt-1 ${sortType === "Studi Independen" ? "bg-gray-200 rounded-md" : ""}`} onClick={() => {
+                const sortedData = [...data].sort((a, b) => {
+                  // Custom sorting logic based on the "name" property
+                  if (a.name_ref_kegiatan === 'Studi Independen' && b.name_ref_kegiatan !== 'Studi Independen') {
+                    return -1;
+                  } else if (a.name_ref_kegiatan !== 'Studi Independen' && b.name_ref_kegiatan === 'Studi Independen') {
+                    return 1;
+                  }
+                  return 0; // No change in order if names are the same
+                });
+                
+                setStatus("")
+                setData(sortedData);
+                setSortType("Studi Independen")
+              }}>
+                <div className='justify-between'>
+                  <a>
+                    Studi Independen
+                  </a>
+                  {sortType === "Studi Independen" && (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="green" className="size-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                      </svg>
+                    </>
+                  )}
+                </div>
+              </li>
+              <li className={`mt-1 ${sortType === "Magang" ? "bg-gray-200 rounded-md" : ""}`} onClick={() => {
+                const sortedData = [...data].sort((a, b) => {
+                  // Custom sorting logic based on the "name" property
+                  if (a.name_ref_kegiatan === 'Magang' && b.name_ref_kegiatan !== 'Magang') {
+                    return -1;
+                  } else if (a.name_ref_kegiatan !== 'Magang' && b.name_ref_kegiatan === 'Magang') {
+                    return 1;
+                  }
+                  return 0; // No change in order if names are the same
+                });
+                
+                setStatus("")
+                setData(sortedData);
+                setSortType("Magang")
+              }}>
+              <div className='justify-between'>
+                  <a>
+                    Magang
+                  </a>
+                  {sortType === "Magang" && (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="green" className="size-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                      </svg>
+                    </>
+                  )}
+                </div>
+              </li>
+            </ul>
+          </div> 
+          <div className="dropdown">
+            <div tabIndex={0} role="button" className={`btn btn-xs bg-white border-gray-400`}>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5m.75-9 3-3 2.148 2.148A12.061 12.061 0 0 1 16.5 7.605" />
+            </svg>
+              Status
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="size-5 hidden xl:block"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                />
+              </svg>
+            </div>
+            <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+            <li className={`mt-1 ${sortStatus === "Diterima" ? "bg-gray-200 rounded-md" : ""}`} onClick={() => {
+                const sortedData = [...data].sort((a, b) => {
+                  // Custom sorting logic based on the "name" property
+                  if (a.status === 'Diterima' && b.status !== 'Diterima') {
+                    return -1;
+                  } else if (a.status !== 'Diterima' && b.status === 'Diterima') {
+                    return 1;
+                  }
+                  return 0; // No change in order if names are the same
+                });
+                
+                setSortType("")
+                setData(sortedData);
+                setStatus("Diterima")
+              }}>
+                <div className='justify-between'>
+                  <a>
+                    Diterima
+                  </a>
+                  {sortStatus === "Diterima" && (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="green" className="size-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                      </svg>
+                    </>
+                  )}
+                </div>
+              </li>
+              <li className={`mt-1 ${sortStatus === "Diproses" ? "bg-gray-200 rounded-md" : ""}`} onClick={() => {
+                const sortedData = [...data].sort((a, b) => {
+                  // Custom sorting logic based on the "name" property
+                  if (a.status === 'Diproses' && b.status !== 'Diproses') {
+                    return -1;
+                  } else if (a.status !== 'Diproses' && b.status === 'Diproses') {
+                    return 1;
+                  }
+                  return 0; // No change in order if names are the same
+                });
+                
+                setSortType("")
+                setData(sortedData);
+                setStatus("Diproses")
+              }}>
+                <div className='justify-between'>
+                  <a>
+                    Diproses
+                  </a>
+                  {sortStatus === "Diproses" && (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="green" className="size-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                      </svg>
+                    </>
+                  )}
+                </div>
+              </li>
+              <li className={`mt-1 ${sortStatus === "Terdaftar" ? "bg-gray-200 rounded-md" : ""}`} onClick={() => {
+                const sortedData = [...data].sort((a, b) => {
+                  // Custom sorting logic based on the "name" property
+                  if (a.status === 'Terdaftar' && b.status !== 'Terdaftar') {
+                    return -1;
+                  } else if (a.status !== 'Terdaftar' && b.status === 'Terdaftar') {
+                    return 1;
+                  }
+                  return 0; // No change in order if names are the same
+                });
+                
+                setSortType("")
+                setData(sortedData);
+                setStatus("Terdaftar")
+              }}>
+                <div className='justify-between'>
+                  <a>
+                    Terdaftar
+                  </a>
+                  {sortStatus === "Terdaftar" && (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="green" className="size-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                      </svg>
+                    </>
+                  )}
+                </div>
+              </li>
+              <li className={`mt-1 ${sortStatus === "Di Ghosting" ? "bg-gray-200 rounded-md" : ""}`} onClick={() => {
+                const sortedData = [...data].sort((a, b) => {
+                  // Custom sorting logic based on the "name" property
+                  if (a.status === 'Di Ghosting' && b.status !== 'Di Ghosting') {
+                    return -1;
+                  } else if (a.status !== 'Di Ghosting' && b.status === 'Di Ghosting') {
+                    return 1;
+                  }
+                  return 0; // No change in order if names are the same
+                });
+                
+                setSortType("")
+                setData(sortedData);
+                setStatus("Di Ghosting")
+              }}>
+                <div className='justify-between'>
+                  <a>
+                    Di Ghosting
+                  </a>
+                  {sortStatus === "Di Ghosting" && (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="green" className="size-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                      </svg>
+                    </>
+                  )}
+                </div>
+              </li>
+            </ul>
+          </div> 
+          </div>
         {data.length === 0 ? (
               <>
                 <table className="table">
