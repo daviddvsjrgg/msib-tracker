@@ -613,11 +613,11 @@ const Table: React.FC = () => {
                     <tr>
                       <th>Kita Bukan Genius!</th>
                       <th>Kita Harus</th>
-                      <th>GAGAL</th>
+                      <th>Berani Untuk Gagal</th>
                       <th>Untuk</th>
                       <th>Bisa</th>
                       <th>Berkembang</th>
-                      <th>~dev</th>
+                      <th>~anime apa gitu</th>
                     </tr>
                   </thead>
                   {/* body */}
