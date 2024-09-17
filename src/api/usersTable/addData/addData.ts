@@ -2,7 +2,6 @@ import { ref, set, get } from 'firebase/database';
 import { db } from '@/config/firebase';
 import { v4 as uuidv4 } from 'uuid';
 
-// Function to add data to Firebase Realtime Database
 export async function addData(userId: string, tableId: string, namaPerusahaan: string): Promise<void> {
   try {
     if (namaPerusahaan.trim() === '') {

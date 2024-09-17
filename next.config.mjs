@@ -15,6 +15,12 @@ const nextConfig = {
                 port: '',
                 pathname: '**',
             },
+            {
+                protocol: 'https',
+                hostname: 'firebasestorage.googleapis.com',
+                port: '',
+                pathname: '/v0/b/msib8-tracker.appspot.com/**',
+            },
         ],
     },
 };

@@ -7,13 +7,13 @@ const Footer = () => {
         <div className="mx-auto w-full max-w-screen-xl p-4 py-6 lg:py-8">
             <div className="md:flex md:justify-between">
             <div className="mb-6 md:mb-0">
-                <a href="https://flowbite.com/" className="flex items-center">
+                <a href="" className="flex items-center">
                 <Image 
-                    src="https://images.unsplash.com/photo-1584441405886-bc91be61e56a?q=80&w=1930&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
-                    className="h-8 me-3" 
+                    src="https://firebasestorage.googleapis.com/v0/b/msib8-tracker.appspot.com/o/msib8-tracker-logo.png?alt=media&token=4317e835-2a7e-40c3-ac73-0f78096d3f61" 
+                    className="me-2" 
                     alt="Logo"
-                    width={30}
-                    height={30}
+                    width={70}
+                    height={70}
                     priority
                     unoptimized
                 />
@@ -23,7 +23,7 @@ const Footer = () => {
         </div>
         <hr className="my-6 border-gray-200 sm:mx-auto dark:border-gray-700 lg:my-8" />
         <div className="sm:flex sm:items-center sm:justify-between">
-            <span className="text-sm text-gray-500 sm:text-center dark:text-gray-400">© {new Date().getFullYear()} <a href="https://flowbite.com/" className="hover:underline">MSIB Tracker™</a>. Developed by David Dwiyanto.
+            <span className="text-sm text-gray-500 sm:text-center dark:text-gray-400">© {new Date().getFullYear()} <a href="" className="hover:underline">MSIB Tracker™</a>. Developed by David Dwiyanto.
             </span>
             <div className="flex mt-4 sm:justify-center sm:mt-0">
                 <a href="https://github.com/daviddvsjrgg" target='_blank' className="text-gray-500 hover:text-gray-900 dark:hover:text-white ms-5">
