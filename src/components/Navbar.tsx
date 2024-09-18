@@ -1,7 +1,7 @@
 'use client'
 
 import { auth, db, ref } from '@/config/firebase';
-import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+import { GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
 import { get, set } from 'firebase/database';
 import Image from 'next/image'
 import { useEffect, useState } from 'react';
@@ -11,21 +11,31 @@ let linkSaweria = "https://saweria.co/davidcode";
 
 const Navbar = () => {
   
-    const [photoURL, setPhotoURL] = useState<string | null>('');
-    const [isAnonymous, setIsAnonymous] = useState<boolean>(true);
+  const [photoURL, setPhotoURL] = useState<string | null>(null);
+  const [isAnonymous, setIsAnonymous] = useState<boolean>(true);
 
-    useEffect(() => {
-      const user = auth.currentUser;
-      if (user) {
-        setPhotoURL(user.photoURL);
-        setIsAnonymous(user.isAnonymous)
-        console.log(photoURL)
-        console.log(isAnonymous)
-      }
-    }, [photoURL, isAnonymous]);
+  useEffect(() => {
+      // Add the auth state listener
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        if (user) {
+          setPhotoURL(user.photoURL);
+          setIsAnonymous(user.isAnonymous);
+        } else {
+          // If no user is signed in, reset the state
+          setPhotoURL(null);
+          setIsAnonymous(true);
+        }
+      });
+
+      // Clean up the listener on unmount
+      return () => unsubscribe();
+  }, []); // Run only once on component mount
+
+  const [clickedSigned, setClickedSigned] = useState<boolean>(false)
     
   const signInWithGoogle = async () => {
     try {
+        setClickedSigned(true)
         const provider = new GoogleAuthProvider();
         const userCredential = await signInWithPopup(auth, provider);
 
@@ -34,7 +44,7 @@ const Navbar = () => {
 
         const userRef = ref(db, `users/${userId}`);
         const snapshot = await get(userRef);
-
+        setClickedSigned(false)
         if (snapshot.exists()) {
             console.log('Already have table');
             window.location.reload()
@@ -54,6 +64,7 @@ const Navbar = () => {
         }
     } catch (error) {
         console.log(error)
+        setClickedSigned(false)
     }
     
 };
@@ -65,21 +76,40 @@ const Navbar = () => {
     <dialog id="loginModal" className="modal">
     <div className="modal-box">
         <h3 className="font-bold text-lg bg-center">Login</h3>
-        <p className="py-4 text-sm -mt-3">Login menggunakan layanan google, <a href="https://firebase.google.com/docs/auth" target='_blank' className='text-blue-500'> Pelajari lebih lanjut.</a></p>
-        <div className='mt-2'>
-          <button
-          onClick={signInWithGoogle} 
-          className="w-full bg-center top-0 right-0 px-5 py-2 border flex items-center justify-center gap-2 hover:bg-gray-100 border-slate-500 dark:border-slate-300 rounded-lg text-slate-700 dark:text-slate-200 hover:border-slate-400 dark:hover:border-slate-500 hover:text-slate-900 dark:hover:text-slate-300 hover:shadow transition duration-150">
-              <Image 
-                className="w-6 h-6"
-                src="https://www.svgrepo.com/show/475656/google-color.svg"
-                alt="google logo"
-                width={180}
-                height={37}
-                priority
-                unoptimized />
-              <span className='text-gray-900 dark:text-white '>Login dengan Google</span>
-          </button>
+        <p className="py-4 text-sm -mt-3 text-blue-600/90">Data saat ini akan terhapus. Login untuk menyimpan data kakak untuk selamanya (Kayaknya..., Gak Janji).😊</p>
+        <div className=''>
+        {clickedSigned ? (
+            <>
+            <button
+            className="w-full bg-center top-0 right-0 px-5 py-2 border flex items-center dark:hover:bg-gray-50/5 justify-center gap-2 hover:bg-gray-100 border-slate-500 dark:border-slate-300 rounded-lg text-slate-700 dark:text-slate-200 hover:border-slate-400 dark:hover:border-slate-500 hover:text-slate-900 dark:hover:text-slate-300 hover:shadow transition duration-150">
+                <Image 
+                    className="w-6 h-6"
+                    src="https://www.svgrepo.com/show/475656/google-color.svg"
+                    alt="google logo"
+                    width={180}
+                    height={37}
+                    priority
+                    unoptimized />
+                <span className='text-gray-900 dark:text-white '>Login dengan Google</span>
+            </button>
+            </>
+        ) : (
+            <>
+            <button
+            onClick={signInWithGoogle} 
+            className="w-full bg-center top-0 right-0 px-5 py-2 border flex items-center dark:hover:bg-gray-50/5 justify-center gap-2 hover:bg-gray-100 border-slate-500 dark:border-slate-300 rounded-lg text-slate-700 dark:text-slate-200 hover:border-slate-400 dark:hover:border-slate-500 hover:text-slate-900 dark:hover:text-slate-300 hover:shadow transition duration-150">
+                <Image 
+                    className="w-6 h-6"
+                    src="https://www.svgrepo.com/show/475656/google-color.svg"
+                    alt="google logo"
+                    width={180}
+                    height={37}
+                    priority
+                    unoptimized />
+                <span className='text-gray-900 dark:text-white '>Login dengan Google</span>
+            </button>
+            </>
+        )}
         </div>
     </div>
     <form method="dialog" className="modal-backdrop">

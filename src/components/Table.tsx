@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { authenticateAndSave } from '@/api/account/authenticateAndSave';
 import { addData } from '@/api/usersTable/addData/addData';
 import { onValue, ref} from 'firebase/database';
-import { auth, db } from '@/config/firebase';
+import { db } from '@/config/firebase';
 import { updateInput, updateOption } from '@/api/usersTable/editData/editData';
 import { deleteItem } from '@/api/usersTable/deleteData/deleteData';
 
@@ -160,6 +160,8 @@ const Table: React.FC = () => {
     const savedModeView = localStorage.getItem('modeView');
     if (savedModeView) {
       setModeView(savedModeView);
+    } else {
+      setModeView("edit")
     }
   }, []);
 
@@ -183,7 +185,6 @@ const Table: React.FC = () => {
   useEffect(() => {
     if (userId) {
       const dbRef = ref(db, `users/${userId}/table`);
-      
       // Fetch data in real-time
       const unsubscribe = onValue(dbRef, (snapshot) => {
         const fetchedData: TableData[] = [];
