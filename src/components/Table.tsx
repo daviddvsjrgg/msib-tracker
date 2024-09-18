@@ -324,7 +324,7 @@ const Table: React.FC = () => {
     <dialog id="deleteModal" className="modal">
       <div className="modal-box">
         <h3 className="font-bold text-lg flex">Apa yakin menghapus List: <p className='text-sky-600 ml-2'>{brandToDelete}</p>?</h3>
-        <p className="py-4">ang ang ang</p>
+        <p className="py-4">Datanya akan hilang seperti dia yang dulu menghilang darimu.</p>
         <div className="modal-action">
           <form method="dialog">
             {/* if there is a button in form, it will close the modal */}

@@ -21,7 +21,7 @@ export async function authenticateAndSave(): Promise<{ userId: string, tableId: 
                         if (snapshot.exists()) {
                             const userData = snapshot.val();
                             const tableId = userData.tableId;
-                            console.log('Your table ID:', tableId);
+                            console.log('Your table ID:', tableId, auth.currentUser);
                             resolve({ userId, tableId }); // Return userId and tableId
                         } else {
                             console.log('No data available for this user.');
@@ -33,29 +33,30 @@ export async function authenticateAndSave(): Promise<{ userId: string, tableId: 
                         const userId = userCredential.user.uid;
                         const tableId = uuidv4(); // Generate a unique table ID
 
-                        // User data to save
-                        const userData = {
-                            userId,
-                            tableId,
-                            username: 'anonymous',
-                            createdAt: new Date().toISOString(),
-                            updatedAt: new Date().toISOString(),
-                        };
+                        if (userCredential.user.isAnonymous === true) {
+                            // User data to save
+                            const userData = {
+                                userId,
+                                tableId,
+                                username: 'anonymous',
+                                createdAt: new Date().toISOString(),
+                                updatedAt: new Date().toISOString(),
+                            };
 
-                        // Save user data to Firebase Realtime Database
-                        await set(ref(db, `users/${userId}`), userData);
-                        console.log('User authenticated and data saved (Anonymous):', userData);
+                            // Save user data to Firebase Realtime Database
+                            await set(ref(db, `users/${userId}`), userData);
+                            console.log('User authenticated and data saved (Anonymous):', userData);
 
-                        const userRef = ref(db, `users/${userId}`);
-                        const snapshot = await get(userRef);
-                        
-                        if (snapshot.exists()) {
-                            const userData = snapshot.val();
-                            const tableId = userData.tableId;
-                            console.log('Your table ID (Anonymous):', tableId);
-                            resolve({ userId, tableId }); // Return userId and tableId
-                        } else {
-                            console.log('No data available for this user. (Anonymous)');
+                            const userRef = ref(db, `users/${userId}`);
+                            const snapshot = await get(userRef);
+                            
+                            if (snapshot.exists()) {
+                                const userData = snapshot.val();
+                                const tableId = userData.tableId;
+                                resolve({ userId, tableId }); // Return userId and tableId
+                            } else {
+                                console.log('No data available for this user. (Anonymous)');
+                            }
                         }
                     }
                 } catch (error) {
