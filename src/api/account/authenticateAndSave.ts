@@ -21,7 +21,7 @@ export async function authenticateAndSave(): Promise<{ userId: string, tableId: 
                         if (snapshot.exists()) {
                             const userData = snapshot.val();
                             const tableId = userData.tableId;
-                            console.log('Your table ID:', tableId, auth.currentUser);
+                            console.log('Your table ID:', tableId);
                             resolve({ userId, tableId }); // Return userId and tableId
                         } else {
                             console.log('No data available for this user.');
@@ -45,7 +45,7 @@ export async function authenticateAndSave(): Promise<{ userId: string, tableId: 
 
                             // Save user data to Firebase Realtime Database
                             await set(ref(db, `users/${userId}`), userData);
-                            console.log('User authenticated and data saved (Anonymous):', userData);
+                            console.log('as (Anonymous)');
 
                             const userRef = ref(db, `users/${userId}`);
                             const snapshot = await get(userRef);
