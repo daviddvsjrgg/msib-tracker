@@ -2,37 +2,60 @@
 
 import { auth, db, ref } from '@/config/firebase';
 import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
-import { get, remove, set } from 'firebase/database';
+import { get, set } from 'firebase/database';
 import Image from 'next/image'
+import { useEffect, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 let linkSaweria = "https://saweria.co/davidcode";
 
 const Navbar = () => {
+  
+    const [photoURL, setPhotoURL] = useState<string | null>('');
+    const [isAnonymous, setIsAnonymous] = useState<boolean>(true);
+
+    useEffect(() => {
+      const user = auth.currentUser;
+      if (user) {
+        setPhotoURL(user.photoURL);
+        setIsAnonymous(user.isAnonymous)
+        console.log(photoURL)
+        console.log(isAnonymous)
+      }
+    }, [photoURL, isAnonymous]);
     
   const signInWithGoogle = async () => {
     try {
-        const currentUserId = auth.currentUser?.uid
         const provider = new GoogleAuthProvider();
-        await signInWithPopup(auth, provider);
+        const userCredential = await signInWithPopup(auth, provider);
 
-        const oldDataRef = ref(db, `users/${currentUserId}`);
-        const newDataRef = ref(db, `users/${auth.currentUser?.uid}`);
+        const userId = userCredential.user.uid;
+        const tableId = uuidv4();
 
-        const snapshot = await get(oldDataRef);
+        const userRef = ref(db, `users/${userId}`);
+        const snapshot = await get(userRef);
+
         if (snapshot.exists()) {
-            const oldData = snapshot.val();
-
-            await set(newDataRef, oldData);
-            await remove(oldDataRef);
-
-            console.log('Data migrated successfully');
-            window.location.reload();
+            console.log('Already have table');
+            window.location.reload()
         } else {
-            console.log('No data');
+            const userData = {
+                userId,
+                tableId,
+                username: 'google',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            };
+    
+            // Save user data to Firebase Realtime Database
+            await set(ref(db, `users/${userId}`), userData);
+            
+            window.location.reload()
         }
     } catch (error) {
         console.log(error)
     }
+    
 };
         
   return (
@@ -48,7 +71,8 @@ const Navbar = () => {
           onClick={signInWithGoogle} 
           className="w-full bg-center top-0 right-0 px-5 py-2 border flex items-center justify-center gap-2 hover:bg-gray-100 border-slate-500 dark:border-slate-300 rounded-lg text-slate-700 dark:text-slate-200 hover:border-slate-400 dark:hover:border-slate-500 hover:text-slate-900 dark:hover:text-slate-300 hover:shadow transition duration-150">
               <Image 
-                className="w-6 h-6" src="https://www.svgrepo.com/show/475656/google-color.svg"
+                className="w-6 h-6"
+                src="https://www.svgrepo.com/show/475656/google-color.svg"
                 alt="google logo"
                 width={180}
                 height={37}
@@ -121,7 +145,7 @@ const Navbar = () => {
                 <Image
                     className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
                     alt="Photo Profile"
-                    src={`${auth.currentUser?.photoURL ? auth.currentUser.photoURL : "https://images.unsplash.com/photo-1598935888738-cd2622bcd437?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"}`}
+                    src={`${isAnonymous ? "https://images.unsplash.com/photo-1598935888738-cd2622bcd437?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" : photoURL}`}
                     width={180}
                     height={37}
                     priority
@@ -134,11 +158,11 @@ const Navbar = () => {
                 className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
                 <li>
                     <a className="justify-between">
-                        {auth ? "Profile (anonymous)" : "Profile (null)"}
+                        {isAnonymous ? "Profile (anonymous)" : auth.currentUser?.displayName}
                     </a>
                 </li>
                 <li>
-                    {auth.currentUser?.photoURL === null  ? (
+                    {isAnonymous  ? (
                         <>
                             <a onClick={() => (document.getElementById('loginModal') as HTMLDialogElement)?.showModal()}>Login</a>
                         </>
@@ -153,7 +177,11 @@ const Navbar = () => {
                         </>
                     )}
                 </li>
-                <li><a className='text-gray-500'>Note: Data akan otomatis terhapus dalam 30 hari/saat menghapus cache browser ini, login untuk menyimpan data kakak :D</a></li>
+                {isAnonymous && (
+                    <>
+                        <li><a className='text-gray-500'>Note: Data akan otomatis terhapus dalam 30 hari/saat menghapus cache browser ini, login untuk menyimpan data kakak :D</a></li>
+                    </>
+                )}
             </ul>
             
         </div>
