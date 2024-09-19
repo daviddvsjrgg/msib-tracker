@@ -27,10 +27,13 @@ interface TableData {
 
 const Table: React.FC = () => {
   
+  // loading
+  const [loading, setLoading] = useState(true);
+
   // Create or Check Authentication 
   const [userId, setUserId] = useState<string | null>(null);
   const [tableId, setTableId] = useState<string | null>(null);
-
+  
   useEffect(() => {
     const initializeAuth = async () => {
       try {
@@ -183,49 +186,55 @@ const Table: React.FC = () => {
   const [data, setData] = useState<TableData[]>([]);
 
   useEffect(() => {
-    if (userId) {
-      const dbRef = ref(db, `users/${userId}/table`);
-      // Fetch data in real-time
-      const unsubscribe = onValue(dbRef, (snapshot) => {
-        const fetchedData: TableData[] = [];
-        snapshot.forEach((childSnapshot) => {
-          const item = childSnapshot.val() as TableData;
-          fetchedData.push(item);
+    try {
+      if (userId) {
+        const dbRef = ref(db, `users/${userId}/table`);
+        // Fetch data in real-time
+        const unsubscribe = onValue(dbRef, (snapshot) => {
+          const fetchedData: TableData[] = [];
+          snapshot.forEach((childSnapshot) => {
+            const item = childSnapshot.val() as TableData;
+            fetchedData.push(item);
+          });
+    
+          // Sorting logic
+          let sortedData = [...fetchedData];
+          
+          if (sortType) {
+            sortedData.sort((a, b) => {
+              if (a.name_ref_kegiatan === sortType && b.name_ref_kegiatan !== sortType) {
+                return -1;
+              } else if (a.name_ref_kegiatan !== sortType && b.name_ref_kegiatan === sortType) {
+                return 1;
+              }
+              return 0;
+            });
+          } else if (sortStatus) {
+            sortedData.sort((a, b) => {
+              if (a.status === sortStatus && b.status !== sortStatus) {
+                return -1;
+              } else if (a.status !== sortStatus && b.status === sortStatus) {
+                return 1;
+              }
+              return 0;
+            });
+          } else {
+            sortedData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+          }
+    
+          setData(sortedData);
+          setSortType(sortType);
+          setSortStatus(sortStatus);
+          setLoading(false)
         });
-  
-        // Sorting logic
-        let sortedData = [...fetchedData];
-        
-        if (sortType) {
-          sortedData.sort((a, b) => {
-            if (a.name_ref_kegiatan === sortType && b.name_ref_kegiatan !== sortType) {
-              return -1;
-            } else if (a.name_ref_kegiatan !== sortType && b.name_ref_kegiatan === sortType) {
-              return 1;
-            }
-            return 0;
-          });
-        } else if (sortStatus) {
-          sortedData.sort((a, b) => {
-            if (a.status === sortStatus && b.status !== sortStatus) {
-              return -1;
-            } else if (a.status !== sortStatus && b.status === sortStatus) {
-              return 1;
-            }
-            return 0;
-          });
-        } else {
-          sortedData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-        }
-  
-        setData(sortedData);
-        setSortType(sortType);
-        setSortStatus(sortStatus);
-      });
-  
-      // Cleanup subscription on unmount
-      return () => unsubscribe();
+    
+        // Cleanup subscription on unmount
+        return () => unsubscribe();
+      }
+    } catch (error) {
+      console.log("fetch fail: " + error)
     }
+    
   }, [userId, sortStatus, sortType]);
 
   return (
@@ -602,10 +611,16 @@ const Table: React.FC = () => {
                   <tbody>
                     <tr>
                       <td>
-                        <p className="animate-pulse text-md">Tidak ada data...</p>
+                        {loading ? (
+                          <a>
+                            <p className="animate-pulse text-md">Loading data...</p>
+                          </a>
+                        ) : (
+                          <>
+                            <p className="text-md">Tidak ada data...</p>
+                          </>
+                        )}
                       </td>
-                      <td></td>
-                      <td></td>
                     </tr>
                   </tbody>
                   {/* foot */}
