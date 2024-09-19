@@ -23,7 +23,7 @@ const Footer = () => {
         </div>
         <hr className="my-6 border-gray-200 sm:mx-auto dark:border-gray-700 lg:my-8" />
         <div className="sm:flex sm:items-center sm:justify-between">
-            <span className="text-sm text-gray-500 sm:text-center dark:text-gray-400">© {new Date().getFullYear()} <p className="hover:underline">MSIB Tracker™</p>. Developed by David Dwiyanto.
+            <span className="text-sm text-gray-500 sm:text-center dark:text-gray-400">© {new Date().getFullYear()} <a className="hover:underline">MSIB Tracker™</a>. Developed by David Dwiyanto.
             </span>
             <div className="flex mt-4 sm:justify-center sm:mt-0">
                 <a href="https://github.com/daviddvsjrgg" target='_blank' className="text-gray-500 hover:text-gray-900 dark:hover:text-white ms-5">

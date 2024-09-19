@@ -53,7 +53,7 @@ const Table: React.FC = () => {
   // DB Column Change
   const [dbBrandColumn, setDbBrandColumn] = useState<string | null>('')
   const [dbPositionColumn, setDbPositionColumn] = useState<string | null>('')
-  const [dbProgressColumn, setDbProgressColumn] = useState<string | null>('')
+  const [dbProgressLocation, setDbProgressLocation] = useState<string | null>('')
 
   // Column City
   const [activeColCompany, setActiveColCompany] = useState<string | null>(null);
@@ -71,12 +71,12 @@ const Table: React.FC = () => {
     setActiveColPosition(activeColPosition === id ? null : id);
   };
 
-  // Column Progress
-  const [activeColProgress, setActiveColProgress] = useState<string | null>(null);
+  // Column Location
+  const [activeColLocation, setActiveColLocation] = useState<string | null>(null);
 
-  const handleToggleColProgress = (id: string, dbProgressColumn: string) => {
-    setDbProgressColumn(dbProgressColumn)
-    setActiveColProgress(activeColProgress === id ? null : id);
+  const handleToggleColProgress = (id: string, dbProgressLocation: string) => {
+    setDbProgressLocation(dbProgressLocation)
+    setActiveColLocation(activeColLocation === id ? null : id);
   };
 
   // Add Company
@@ -141,10 +141,25 @@ const Table: React.FC = () => {
   // Edit progress Input
   const handleUpdateInputProgress = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const progressValue = e.target.value
-    if (userId && activeColProgress && dbProgressColumn) {
-      updateInput(progressValue, userId, activeColProgress, dbProgressColumn);
+    if (userId && activeColLocation && dbProgressLocation) {
+      updateInput(progressValue, userId, activeColLocation, dbProgressLocation);
     }
   };
+  const [mitraBrandName, setMitraBrandName] = useState<string | null>('')
+  const [detailRowId, setDetailRowId] = useState<string | null>('')
+
+  // Detail 
+  const handleDetail = (rowId: string, mitra_brand_name: string) => {
+    setMitraBrandName(mitra_brand_name)
+    setDetailRowId(rowId)
+  }
+
+  // Detail 
+  const handleProgress = (rowId: string, mitra_brand_name: string) => {
+    setMitraBrandName(mitra_brand_name)
+    setDetailRowId(rowId)
+  }
+
 
   // Delete Row Data
   const [rowIdToDelete, setRowIdToDelete] = useState<string | null>('')
@@ -242,36 +257,34 @@ const Table: React.FC = () => {
     {/* Modal Detail */}
     <dialog id="detailModal" className="modal">
       <div className="modal-box w-11/12 max-w-5xl">
-        <h3 className="font-bold text-lg">Detail ~PERUSAHAAN~</h3>
+        <h3 className="font-bold text-lg">Catatan: {mitraBrandName}</h3>
+        <p className="text-sm text-gray-400">Data tersimpan otomatis</p>
+        <div className="divider divider-info -mb-1"></div>
+        <label className="form-control">
+          <div className="label">
+            <span className="label-text">Catatan</span>
+          </div>
+          <textarea
+            className="textarea textarea-bordered h-48" placeholder="medsos perusahaan, link zoom, catatan lainnya"></textarea>
+          <div className="label">
+          </div>
+        </label>
+        <div className="modal-action">
+          <form method="dialog">
+            {/* if there is a button, it will close the modal */}
+            <button className="btn">Close</button>
+          </form>
+        </div>
+      </div>
+    </dialog>
+    {/* Progress Detail */}
+    <dialog id="progressModal" className="modal">
+      <div className="modal-box w-11/12 max-w-5xl">
+        <h3 className="font-bold text-lg">Kemajuan {mitraBrandName}</h3>
+        <p className="text-sm text-gray-400">Data tersimpan otomatis</p>
         <div className="divider divider-info"></div>
         <div className='columns-3'>
-        <label className="form-control w-full max-w-xs">
-          <div className="label">
-            <span className="label-text">Lokasi</span>
-          </div>
-          <input type="text" placeholder="Type here" className="input input-bordered w-full max-w-xs" />
-        </label>
-        <label className="form-control w-full max-w-xs">
-          <div className="label">
-            <span className="label-text">Media Sosial Perusahaan</span>
-          </div>
-          <input type="text" placeholder="Type here" className="input input-bordered w-full max-w-xs" />
-        </label>
-        <label className="form-control w-full max-w-xs">
-          <div className="label">
-            <span className="label-text">Batch</span>
-          </div>
-          <input disabled type="text" placeholder="7" value="8" className="input input-bordered w-full max-w-xs" />
-        </label>
         </div>
-        <label className="form-control mt-3">
-          <div className="label">
-            <span className="label-text">Note Khusus</span>
-          </div>
-          <textarea className="textarea textarea-bordered h-24" placeholder="Bio"></textarea>
-          <div className="label">
-          </div>
-        </label>
         <div className="modal-action">
           <form method="dialog">
             {/* if there is a button, it will close the modal */}
@@ -447,7 +460,7 @@ const Table: React.FC = () => {
                     className={`mt-1 ${modeView === "view" ? "bg-gray-200 dark:bg-gray-50/5 rounded-md" : ""}`}>
                 <div className='justify-between'>
                   <a>
-                    Lihat Doang
+                    Lihat Aja
                   </a>
                   {modeView === "view" && (
                     <>
@@ -643,7 +656,7 @@ const Table: React.FC = () => {
                       <th>Nama Perusahaan</th>
                       <th>Jenis</th>
                       <th>Posisi</th>
-                      <th>Kemajuan</th>
+                      <th>Lokasi</th>
                       <th>Status</th>
                       <th></th>
                     </tr>
@@ -660,7 +673,7 @@ const Table: React.FC = () => {
                       <th>Nama Perusahaan</th>
                       <th>Jenis</th>
                       <th>Posisi</th>
-                      <th>Kemajuan</th>
+                      <th>Lokasi</th>
                       <th>Status</th>
                       <th></th>
                     </tr>
@@ -803,25 +816,25 @@ const Table: React.FC = () => {
                           </td>
                           <td>
                             <div className='inline-flex'>
-                                {activeColProgress === items.rowId ? (
+                                {activeColLocation === items.rowId ? (
                                     <input
-                                    value={items.progress}
+                                    value={items.lokasi}
                                     onChange={handleUpdateInputProgress}
                                     type="text"
                                     placeholder="Type here"
                                     className="input input-bordered input-sm hover:border-black w-full max-w-xs"
                                     />
                                 ) : (
-                                    <p className={`${items.progress ? "" : "text-gray-400"}`}>{items.progress ? items.progress : "proses/tahapan seleksi"}</p>
+                                    <p className={`${items.lokasi ? "" : "text-gray-400"}`}>{items.lokasi ? items.lokasi : "lokasi perusahaan, wfo/wfh"}</p>
                                 )}
-                                {activeColProgress === items.rowId ? (
+                                {activeColLocation === items.rowId ? (
                                     <svg 
                                       xmlns="http://www.w3.org/2000/svg" 
                                       fill="none" viewBox="0 0 24 24" 
                                       strokeWidth={1.5} 
                                       stroke="green"
                                       className="ml-3 scale-125 hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-1.6"
-                                      onClick={() => handleToggleColProgress(items.rowId, "progress")}
+                                      onClick={() => handleToggleColProgress(items.rowId, "lokasi")}
                                     >
                                       <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                                     </svg>
@@ -836,7 +849,7 @@ const Table: React.FC = () => {
                                           strokeWidth={1.5}
                                           stroke="currentColor"
                                           className="ml-3 hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-1 dark:hover:bg-gray-50/5"
-                                          onClick={() => handleToggleColProgress(items.rowId, "progress")}
+                                          onClick={() => handleToggleColProgress(items.rowId, "lokasi")}
                                         >
                                           <path
                                             strokeLinecap="round"
@@ -894,10 +907,20 @@ const Table: React.FC = () => {
                           <th>
                             <div className='inline-flex'>
                               <button 
-                                className="hover:bg-gray-200 dark:bg-gray-50 dark:text-black bg-gray-200 rounded-md btn-xs text-gray-400 mr-2" 
-                                disabled
-                                onClick={() => (document.getElementById('detailModal') as HTMLDialogElement)?.showModal()}>
-                                detail (soon)
+                                className="btn btn-xs hover:bg-gray-200 hover:scale-105 dark:bg-gray-50 dark:text-black bg-gray-200 rounded-md text-gray-700 mr-1" 
+                                onClick={() => {
+                                  (document.getElementById('progressModal') as HTMLDialogElement)?.showModal()
+                                  handleProgress(items.rowId, items.mitra_brand_name)
+                                }}>
+                                Kemajuan
+                              </button>
+                              <button 
+                                className="btn btn-xs hover:bg-gray-200 hover:scale-105 dark:bg-gray-50 dark:text-black bg-gray-200 rounded-md text-gray-700 mr-2" 
+                                onClick={() => {
+                                  (document.getElementById('detailModal') as HTMLDialogElement)?.showModal()
+                                  handleDetail(items.rowId, items.mitra_brand_name)
+                                }}>
+                                Catatan
                               </button>
                               {modeView === "edit" && (
                                 <>
@@ -930,7 +953,7 @@ const Table: React.FC = () => {
                       <th>Nama Perusahaan</th>
                       <th>Jenis</th>
                       <th>Posisi</th>
-                      <th>Kemajuan</th>
+                      <th>Lokasi</th>
                       <th>Status</th>
                       <th></th>
                     </tr>

@@ -65,10 +65,9 @@ const Navbar = () => {
                 console.log('No existing table data found');
             }
     
-            // Prepare user data
             const userData = {
                 userId,
-                table: oldTableData || {}, // Set to old table data if it exists, otherwise empty
+                table: oldTableData || {}, 
                 tableId,
                 username: 'google',
                 createdAt: new Date().toISOString(),
@@ -76,13 +75,11 @@ const Navbar = () => {
             };
     
             // Save user data to Firebase Realtime Database
-            await set(ref(db, `users/${userId}`), userData);
-            
+            await set(ref(db, `users/${userId}`), userData);  
         }
     
         if (isAnonymous) {
             remove(oldRef);
-            
         }
 
         setTimeout(() => {
@@ -179,6 +176,9 @@ const Navbar = () => {
                     <li><a href={`${linkSaweria}`} target='_blank'>saweria</a></li>
                 </ul>
                 </details>
+            </li>
+            <li>
+                <a>Panduan</a>
             </li>
             {/* <li><a>Item 3</a></li> */}
             </ul>
