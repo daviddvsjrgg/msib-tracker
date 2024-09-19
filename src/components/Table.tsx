@@ -377,13 +377,26 @@ const Table: React.FC = () => {
         <div className={`text-xl badge badge-ghost p-3 ${data.length !== 0 ? "" : "animate-pulse"}`}>{data.length !== 0 ? data.length : "0"}/22</div>
         <div className="inline-flex">
           <h2 className="card-title ml-1">List Perusahaan</h2>
-          <button className="btn btn-sm ml-2 hover:scale-105 duration-150 dark:bg-white dark:text-black dark:hover:bg-black dark:hover:text-white"
-          onClick={() => (document.getElementById('addModal') as HTMLDialogElement)?.showModal()}>
-            Tambah
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 10.5v6m3-3H9m4.06-7.19-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
-            </svg>
-          </button>
+          {loading ? (
+            <>
+              <button disabled className="btn btn-sm ml-2 hover:scale-105 duration-150 dark:bg-white dark:text-black dark:hover:bg-black dark:hover:text-white">
+                Tambah
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 10.5v6m3-3H9m4.06-7.19-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
+                </svg>
+              </button>
+            </>
+          ) : (
+            <>
+              <button className="btn btn-sm ml-2 hover:scale-105 duration-150 dark:bg-white dark:text-black dark:hover:bg-black dark:hover:text-white"
+              onClick={() => (document.getElementById('addModal') as HTMLDialogElement)?.showModal()}>
+                Tambah
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 10.5v6m3-3H9m4.06-7.19-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
+                </svg>
+              </button>
+            </>
+          )}
         </div>
         <div className="overflow-x-auto">
           <div className='mt-2'>

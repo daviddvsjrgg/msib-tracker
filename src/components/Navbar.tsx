@@ -1,8 +1,8 @@
 'use client'
 
-import { auth, db, ref } from '@/config/firebase';
+import { auth, db } from '@/config/firebase';
 import { GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
-import { get, set } from 'firebase/database';
+import { get, ref, remove, set } from 'firebase/database';
 import Image from 'next/image'
 import { useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
@@ -35,22 +35,40 @@ const Navbar = () => {
     
   const signInWithGoogle = async () => {
     try {
-        setClickedSigned(true)
+        setClickedSigned(true);
+    
+        // Old Data
+        const currentUserId = auth.currentUser?.uid;
+        const oldRef = ref(db, `users/${currentUserId}`);
+        const oldRefTable = ref(db, `users/${currentUserId}/table`);
+    
+        // New Google Sign-In
         const provider = new GoogleAuthProvider();
         const userCredential = await signInWithPopup(auth, provider);
-
+    
         const userId = userCredential.user.uid;
         const tableId = uuidv4();
-
+    
         const userRef = ref(db, `users/${userId}`);
         const snapshot = await get(userRef);
-        setClickedSigned(false)
+    
         if (snapshot.exists()) {
             console.log('Already have table');
-            window.location.reload()
         } else {
+            // Retrieve data from oldRefTable
+            const oldTableSnapshot = await get(oldRefTable);
+            let oldTableData = null;
+    
+            if (oldTableSnapshot.exists()) {
+                oldTableData = oldTableSnapshot.val();
+            } else {
+                console.log('No existing table data found');
+            }
+    
+            // Prepare user data
             const userData = {
                 userId,
+                table: oldTableData || {}, // Set to old table data if it exists, otherwise empty
                 tableId,
                 username: 'google',
                 createdAt: new Date().toISOString(),
@@ -60,12 +78,21 @@ const Navbar = () => {
             // Save user data to Firebase Realtime Database
             await set(ref(db, `users/${userId}`), userData);
             
-            window.location.reload()
         }
+    
+        if (isAnonymous) {
+            remove(oldRef);
+            
+        }
+
+        setTimeout(() => {
+            window.location.reload()
+        }, 3000);
     } catch (error) {
-        console.log(error)
-        setClickedSigned(false)
+        console.log(error);
+        setClickedSigned(false);
     }
+    
     
 };
         
@@ -76,21 +103,13 @@ const Navbar = () => {
     <dialog id="loginModal" className="modal">
     <div className="modal-box">
         <h3 className="font-bold text-lg bg-center">Login</h3>
-        <p className="py-4 text-sm -mt-3 text-blue-600/90">Data saat ini akan terhapus. Login untuk menyimpan data kakak untuk selamanya (Kayaknya..., Gak Janji).😊</p>
+        <p className="py-4 text-sm -mt-3 text-blue-600/90">Login untuk menyimpan data kakak untuk selamanya (Kayaknya..., Gak Janji).😊</p>
         <div className=''>
         {clickedSigned ? (
             <>
             <button
             className="w-full bg-center top-0 right-0 px-5 py-2 border flex items-center dark:hover:bg-gray-50/5 justify-center gap-2 hover:bg-gray-100 border-slate-500 dark:border-slate-300 rounded-lg text-slate-700 dark:text-slate-200 hover:border-slate-400 dark:hover:border-slate-500 hover:text-slate-900 dark:hover:text-slate-300 hover:shadow transition duration-150">
-                <Image 
-                    className="w-6 h-6"
-                    src="https://www.svgrepo.com/show/475656/google-color.svg"
-                    alt="google logo"
-                    width={180}
-                    height={37}
-                    priority
-                    unoptimized />
-                <span className='text-gray-900 dark:text-white '>Login dengan Google</span>
+                <span className="loading loading-spinner loading-sm"></span>
             </button>
             </>
         ) : (

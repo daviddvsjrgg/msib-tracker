@@ -7,7 +7,7 @@ const Footer = () => {
         <div className="mx-auto w-full max-w-screen-xl p-4 py-6 lg:py-8">
             <div className="md:flex md:justify-between">
             <div className="mb-6 md:mb-0">
-                <a href="" className="flex items-center">
+                <div className="flex items-center">
                 <Image 
                     src="https://firebasestorage.googleapis.com/v0/b/msib8-tracker.appspot.com/o/msib8-tracker-logo.png?alt=media&token=4317e835-2a7e-40c3-ac73-0f78096d3f61" 
                     className="me-2" 
@@ -18,12 +18,12 @@ const Footer = () => {
                     unoptimized
                 />
                     <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">MSIB Tracker App</span>
-                </a>
+                </div>
             </div>
         </div>
         <hr className="my-6 border-gray-200 sm:mx-auto dark:border-gray-700 lg:my-8" />
         <div className="sm:flex sm:items-center sm:justify-between">
-            <span className="text-sm text-gray-500 sm:text-center dark:text-gray-400">© {new Date().getFullYear()} <a href="" className="hover:underline">MSIB Tracker™</a>. Developed by David Dwiyanto.
+            <span className="text-sm text-gray-500 sm:text-center dark:text-gray-400">© {new Date().getFullYear()} <p className="hover:underline">MSIB Tracker™</p>. Developed by David Dwiyanto.
             </span>
             <div className="flex mt-4 sm:justify-center sm:mt-0">
                 <a href="https://github.com/daviddvsjrgg" target='_blank' className="text-gray-500 hover:text-gray-900 dark:hover:text-white ms-5">
