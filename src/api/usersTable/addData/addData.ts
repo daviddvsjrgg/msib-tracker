@@ -39,6 +39,7 @@ export async function addData(userId: string, tableId: string, namaPerusahaan: s
       mitra_logo: "",
       mitra_brand_name: namaPerusahaan,
       semester_program: "",
+      note: "",
       cycle: "8",
       progress: "",
       createdAt: new Date().toISOString(),

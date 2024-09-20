@@ -19,6 +19,7 @@ interface TableData {
   mitra_logo: string,
   mitra_brand_name: string,
   semester_program: string,
+  note: string,
   cycle: string,
   progress: string,
   createdAt: string,
@@ -53,7 +54,7 @@ const Table: React.FC = () => {
   // DB Column Change
   const [dbBrandColumn, setDbBrandColumn] = useState<string | null>('')
   const [dbPositionColumn, setDbPositionColumn] = useState<string | null>('')
-  const [dbProgressLocation, setDbProgressLocation] = useState<string | null>('')
+  const [dbLocationColumn, setDbLocationColumn] = useState<string | null>('')
 
   // Column City
   const [activeColCompany, setActiveColCompany] = useState<string | null>(null);
@@ -74,10 +75,36 @@ const Table: React.FC = () => {
   // Column Location
   const [activeColLocation, setActiveColLocation] = useState<string | null>(null);
 
-  const handleToggleColProgress = (id: string, dbProgressLocation: string) => {
-    setDbProgressLocation(dbProgressLocation)
+  const handleToggleColProgress = (id: string, dbLocationColumn: string) => {
+    setDbLocationColumn(dbLocationColumn)
     setActiveColLocation(activeColLocation === id ? null : id);
   };
+
+  // Column Note
+  const [mitraBrandName, setMitraBrandName] = useState<string | null>('')
+  const [noteRowId, setNoteRowId] = useState<string | null>('')
+  const [dbNoteColumn, setDbNoteColumn] = useState<string | null>('')
+  const [noteCurrentValue, setNoteCurrentValue] = useState<string | null>('')
+
+  const [noteData, setNoteData] = useState(null);
+  const [isFetching, setIsFetching] = useState(false);
+
+   const handleToggleNoteTextArea = (noteCurrentValue: string ,rowId: string, mitra_brand_name: string, dbNoteColumn: string) => {
+    setMitraBrandName(mitra_brand_name)
+    setNoteRowId(rowId)
+    setDbNoteColumn(dbNoteColumn)
+    setNoteCurrentValue(noteCurrentValue)
+
+    setIsFetching(true);
+
+    const dbRef = ref(db, `users/${userId}/table/${rowId}/${dbNoteColumn}`);
+
+    onValue(dbRef, (snapshot) => {
+      const newData = snapshot.val();
+      setNoteData(newData);
+      setIsFetching(false);
+    });
+  }
 
   // Add Company
   const [namaPerusahaan, setNamaPerusahaan] = useState<string>('');
@@ -141,23 +168,23 @@ const Table: React.FC = () => {
   // Edit progress Input
   const handleUpdateInputProgress = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const progressValue = e.target.value
-    if (userId && activeColLocation && dbProgressLocation) {
-      updateInput(progressValue, userId, activeColLocation, dbProgressLocation);
+    if (userId && activeColLocation && dbLocationColumn) {
+      updateInput(progressValue, userId, activeColLocation, dbLocationColumn);
     }
   };
-  const [mitraBrandName, setMitraBrandName] = useState<string | null>('')
-  const [detailRowId, setDetailRowId] = useState<string | null>('')
 
-  // Detail 
-  const handleDetail = (rowId: string, mitra_brand_name: string) => {
-    setMitraBrandName(mitra_brand_name)
-    setDetailRowId(rowId)
-  }
-
-  // Detail 
+  // Edit Note Input
+  const handleUpdateTextAreaNote = async (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const noteValue = e.target.value
+    if (userId && noteRowId && dbNoteColumn) {
+      updateInput(noteValue, userId, noteRowId, dbNoteColumn);
+    }
+  };
+ 
+  // Progress 
   const handleProgress = (rowId: string, mitra_brand_name: string) => {
     setMitraBrandName(mitra_brand_name)
-    setDetailRowId(rowId)
+    setNoteRowId(rowId)
   }
 
 
@@ -257,7 +284,7 @@ const Table: React.FC = () => {
     {/* Modal Detail */}
     <dialog id="detailModal" className="modal">
       <div className="modal-box w-11/12 max-w-5xl">
-        <h3 className="font-bold text-lg">Catatan: {mitraBrandName}</h3>
+        <h3 className="font-bold text-lg">Catatan {mitraBrandName}</h3>
         <p className="text-sm text-gray-400">Data tersimpan otomatis</p>
         <div className="divider divider-info -mb-1"></div>
         <label className="form-control">
@@ -265,6 +292,8 @@ const Table: React.FC = () => {
             <span className="label-text">Catatan</span>
           </div>
           <textarea
+            value={noteData !== null ? noteData : ''}
+            onChange={handleUpdateTextAreaNote}
             className="textarea textarea-bordered h-48" placeholder="medsos perusahaan, link zoom, catatan lainnya"></textarea>
           <div className="label">
           </div>
@@ -747,6 +776,7 @@ const Table: React.FC = () => {
                             ${isItFirstRow ? "dropdown mr-2" :
                               isItLastRow || isItLastSecondRow ? "dropdown dropdown-right dropdown-end mr-2" :
                               "dropdown mr-2" }`}>
+                              <div className='flex'>
                               <div tabIndex={0} role="button" className={`btn btn-sm
                               ${items.name_ref_kegiatan === "Studi Independen" ? 'bg-sky-400 hover:bg-sky-500 dark:bg-sky-700 darkhover:bg-sky-800 text-white ' :
                                 items.name_ref_kegiatan === "Magang" ? 'bg-gray-500 hover:bg-gray-600 text-white dark:bg-gray-700 dark:hover:bg-gray-800' : ""}`}>
@@ -755,7 +785,8 @@ const Table: React.FC = () => {
                                     <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
                                   </svg>
                               </div>
-                              <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                              </div>
+                              <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow flex-none">
                                 <li>
                                   <a onClick={() => handleOptionSelect('Studi Independen', items.rowId, "name_ref_kegiatan")}>Studi Independen</a>
                                 </li>
@@ -918,7 +949,7 @@ const Table: React.FC = () => {
                                 className="btn btn-xs hover:bg-gray-200 hover:scale-105 dark:bg-gray-50 dark:text-black bg-gray-200 rounded-md text-gray-700 mr-2" 
                                 onClick={() => {
                                   (document.getElementById('detailModal') as HTMLDialogElement)?.showModal()
-                                  handleDetail(items.rowId, items.mitra_brand_name)
+                                  handleToggleNoteTextArea(items.note ,items.rowId, items.mitra_brand_name, "note")
                                 }}>
                                 Catatan
                               </button>
