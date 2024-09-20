@@ -285,7 +285,7 @@ const Table: React.FC = () => {
     <dialog id="detailModal" className="modal">
       <div className="modal-box w-11/12 max-w-5xl">
         <h3 className="font-bold text-lg">Catatan {mitraBrandName}</h3>
-        <p className="text-sm text-gray-400">Data tersimpan otomatis</p>
+        <p className="text-sm text-gray-400">Data akan tersimpan secara otomatis</p>
         <div className="divider divider-info -mb-1"></div>
         <label className="form-control">
           <div className="label">
@@ -776,7 +776,7 @@ const Table: React.FC = () => {
                             ${isItFirstRow ? "dropdown mr-2" :
                               isItLastRow || isItLastSecondRow ? "dropdown dropdown-right dropdown-end mr-2" :
                               "dropdown mr-2" }`}>
-                              <div className='flex'>
+                              <div className='xl:flex'>
                               <div tabIndex={0} role="button" className={`btn btn-sm
                               ${items.name_ref_kegiatan === "Studi Independen" ? 'bg-sky-400 hover:bg-sky-500 dark:bg-sky-700 darkhover:bg-sky-800 text-white ' :
                                 items.name_ref_kegiatan === "Magang" ? 'bg-gray-500 hover:bg-gray-600 text-white dark:bg-gray-700 dark:hover:bg-gray-800' : ""}`}>
@@ -899,17 +899,21 @@ const Table: React.FC = () => {
                             ${isItFirstRow ? "dropdown mr-2" :
                               isItLastRow || isItLastSecondRow ? "dropdown dropdown-left dropdown-end mr-2" : 
                               "dropdown mr-2"}`}>
-                            <div tabIndex={0} role="button" 
-                            className={`btn btn-sm 
-                              ${items.status === "Diterima" ? 'bg-green-500 text-white hover:bg-green-600' :
-                                items.status === "Diproses" ? 'bg-yellow-400 hover:text-gray-700 dark:text-black hover:bg-yellow-500' :
-                                items.status === "Terdaftar" ? 'bg-sky-400 text-white hover:bg-sky-500' :
-                                items.status === "Di Ghosting" ? '' :
-                                "Opsi"}`}>
-                              {items.status ? items.status : "Opsi"}
-                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5 hidden xl:block">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
-                              </svg>
+                            <div className='xl:flex'>
+                                <div tabIndex={0} role="button" 
+                                className={`btn btn-sm 
+                                  ${items.status === "Diterima" ? 'bg-green-500 text-white hover:bg-green-600' :
+                                  items.status === "Diproses" ? 'bg-yellow-400 hover:text-gray-700 dark:text-black hover:bg-yellow-500' :
+                                  items.status === "Terdaftar" ? 'bg-sky-400 text-white hover:bg-sky-500' :
+                                  items.status === "Di Ghosting" ? '' :
+                                  "Opsi"}`}>
+                                  {items.status ? items.status : "Opsi"}
+                                  <div>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5 hidden xl:block">
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
+                                    </svg>
+                                  </div>
+                                </div>
                             </div>
                             <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
                               <li>

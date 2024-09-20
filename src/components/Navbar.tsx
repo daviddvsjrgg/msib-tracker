@@ -100,7 +100,7 @@ const Navbar = () => {
     <dialog id="loginModal" className="modal">
     <div className="modal-box">
         <h3 className="font-bold text-lg bg-center">Login</h3>
-        <p className="py-4 text-sm -mt-3 text-blue-600/90">Login untuk menyimpan data kakak untuk selamanya (Kayaknya..., Gak Janji).😊</p>
+        <p className="py-4 text-sm -mt-3 text-blue-600/90">Login untuk menyimpan data kakak. 😊</p>
         <div className=''>
         {clickedSigned ? (
             <>
