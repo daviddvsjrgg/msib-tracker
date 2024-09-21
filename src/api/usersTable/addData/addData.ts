@@ -2,7 +2,7 @@ import { ref, set, get } from 'firebase/database';
 import { db } from '@/config/firebase';
 import { v4 as uuidv4 } from 'uuid';
 
-export async function addData(userId: string, tableId: string, namaPerusahaan: string): Promise<void> {
+export async function addData(userId: string, namaPerusahaan: string): Promise<void> {
   try {
     if (namaPerusahaan.trim() === '') {
       throw new Error('Nama perusahaan cannot be empty');
@@ -30,7 +30,6 @@ export async function addData(userId: string, tableId: string, namaPerusahaan: s
 
     const data = {
       rowId: rowId,
-      tableId: tableId,
       status: "",
       lokasi: "",
       nama_kegiatan: "",
@@ -39,7 +38,7 @@ export async function addData(userId: string, tableId: string, namaPerusahaan: s
       mitra_logo: "",
       mitra_brand_name: namaPerusahaan,
       semester_program: "",
-      note: "",
+      note: "Link Instagram: https://instagram.com/davidjrggbro",
       cycle: "8",
       progress: "",
       createdAt: new Date().toISOString(),
@@ -48,7 +47,7 @@ export async function addData(userId: string, tableId: string, namaPerusahaan: s
 
     // Set the data at the specified reference
     await set(newTableRef, data);
-    console.log('Data added:', { tableId, data });
+    console.log('Data added:', { data });
   } catch (error) {
     console.error('Error adding data:', error);
     throw error;

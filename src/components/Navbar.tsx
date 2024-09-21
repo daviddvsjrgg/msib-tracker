@@ -1,9 +1,9 @@
 'use client'
 
+import Image from 'next/image'
 import { auth, db } from '@/config/firebase';
 import { GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
 import { get, ref, remove, set } from 'firebase/database';
-import Image from 'next/image'
 import { useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 

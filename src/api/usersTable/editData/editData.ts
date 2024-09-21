@@ -21,6 +21,10 @@ export const updateOption = async (option: string, userId: string, rowId: string
     } else {
       // Otherwise, update the data
       await set(dbRef, option);
+
+      const dbRefTimeUpdated = ref(db, `users/${userId}/table/${rowId}/updatedAt`);
+      await set(dbRefTimeUpdated, new Date().toISOString());
+      
       console.log('Data saved successfully');
     }
   } catch (error) {
@@ -33,6 +37,10 @@ export const updateInput = async (value: string, userId: string, rowId: string, 
     try {
       const dbRef = ref(db, `users/${userId}/table/${rowId}/${column}`);
       await set(dbRef, value);
+
+      const dbRefTimeUpdated = ref(db, `users/${userId}/table/${rowId}/updatedAt`);
+      await set(dbRefTimeUpdated, new Date().toISOString());
+
       console.log("Data updated successfully");
     } catch (error) {
       console.error("Error updating Firebase:", error);

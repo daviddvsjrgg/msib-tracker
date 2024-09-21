@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image';
 import React, { useEffect, useState } from 'react'
 import { authenticateAndSave } from '@/api/account/authenticateAndSave';
 import { addData } from '@/api/usersTable/addData/addData';
@@ -10,7 +11,6 @@ import { deleteItem } from '@/api/usersTable/deleteData/deleteData';
 
 interface TableData {
   rowId: string,
-  tableId: string,
   status: string,
   lokasi: string,
   nama_kegiatan: string,
@@ -84,25 +84,21 @@ const Table: React.FC = () => {
   const [mitraBrandName, setMitraBrandName] = useState<string | null>('')
   const [noteRowId, setNoteRowId] = useState<string | null>('')
   const [dbNoteColumn, setDbNoteColumn] = useState<string | null>('')
-  const [noteCurrentValue, setNoteCurrentValue] = useState<string | null>('')
+  const [noteShowEdit, setNoteShowEdit] = useState<boolean>(false)
 
   const [noteData, setNoteData] = useState(null);
-  const [isFetching, setIsFetching] = useState(false);
 
-   const handleToggleNoteTextArea = (noteCurrentValue: string ,rowId: string, mitra_brand_name: string, dbNoteColumn: string) => {
+   const handleToggleNoteTextArea = (rowId: string, mitra_brand_name: string, dbNoteColumn: string) => {
     setMitraBrandName(mitra_brand_name)
     setNoteRowId(rowId)
     setDbNoteColumn(dbNoteColumn)
-    setNoteCurrentValue(noteCurrentValue)
 
-    setIsFetching(true);
 
     const dbRef = ref(db, `users/${userId}/table/${rowId}/${dbNoteColumn}`);
 
     onValue(dbRef, (snapshot) => {
       const newData = snapshot.val();
       setNoteData(newData);
-      setIsFetching(false);
     });
   }
 
@@ -121,7 +117,7 @@ const Table: React.FC = () => {
         setSortStatus("")
 
         setAddButton(true)
-        await addData(userId, tableId, namaPerusahaan);
+        await addData(userId, namaPerusahaan);
         setNamaPerusahaan(''); // Clear the input after saving
         setNamaPerusahaanIsEmpty(false); // Reset validation flag
         setTimeout(() => {
@@ -279,46 +275,190 @@ const Table: React.FC = () => {
     
   }, [userId, sortStatus, sortType]);
 
+  const renderTextWithLinksAndSpacesAndNewlines = (text: string) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+
+    return text.split(/\n/).map((line, index) => (
+      <React.Fragment key={index}>
+        {line.split(urlRegex).map((part, i) => {
+          if (part.match(urlRegex)) {
+            return (
+              <a href={part} key={i} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
+                {part}
+              </a>
+            );
+          }
+
+          // Replace multiple tabs and spaces
+          const formattedText = part
+            .replace(/\t+/g, (tabs) => '\u00A0'.repeat(tabs.length * 4)) // Replace tabs with 4 non-breaking spaces per tab
+            .replace(/ {2,}/g, (spaces) => '\u00A0'.repeat(spaces.length)); // Replace multiple spaces with &nbsp;
+
+          return <span key={i}>{formattedText}</span>;
+        })}
+        {/* Add <br /> for every newline except for the last */}
+        {index < text.split(/\n/).length - 1 && <br />}
+      </React.Fragment>
+    ));
+  };
+
   return (
     <>
     {/* Modal Detail */}
     <dialog id="detailModal" className="modal">
       <div className="modal-box w-11/12 max-w-5xl">
+      <div className='justify-between flex'>
         <h3 className="font-bold text-lg">Catatan {mitraBrandName}</h3>
-        <p className="text-sm text-gray-400">Data akan tersimpan secara otomatis</p>
+        <div className='modal-dialog'>
+          <form method="dialog">
+            <button className="btn">Tutup</button>
+          </form>
+        </div>
+      </div>
+        <p className="text-sm text-gray-400 -mt-5">Otomatis tersimpan</p>
         <div className="divider divider-info -mb-1"></div>
         <label className="form-control">
           <div className="label">
-            <span className="label-text">Catatan</span>
+          <span className="label-text flex my-2">Catatan
+          {noteShowEdit ? (
+            <>
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                fill="none" viewBox="0 0 24 24" 
+                strokeWidth={1.5} 
+                stroke="green"
+                onClick={() => setNoteShowEdit(false)}
+                className="ml-3 scale-125 hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-2 -mt-1.6"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+              </svg>
+            </>
+          ): (
+            <>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                onClick={() => setNoteShowEdit(true)}
+                className="ml-3 hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-7 -mt-2 dark:hover:bg-gray-50/5"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M16.862 4.487l1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487z"
+                />
+              </svg>
+            </>
+          )}
+            </span>
           </div>
-          <textarea
-            value={noteData !== null ? noteData : ''}
-            onChange={handleUpdateTextAreaNote}
-            className="textarea textarea-bordered h-48" placeholder="medsos perusahaan, link zoom, catatan lainnya"></textarea>
+          {noteShowEdit && (
+            <>
+              <textarea
+                value={noteData !== null ? noteData : ''}
+                onChange={handleUpdateTextAreaNote}
+                className="textarea textarea-bordered h-48 display" 
+                placeholder="medsos perusahaan, informasi perusahaan atau catatan lainnya"
+              />
+              <p className='mt-2 label-text focus'>Hasil:</p>
+            </>
+          )}
+          
+           <div className="mt-1 bg-gray-100/70 p-3 rounded-xl dark:bg-gray-50/5">
+           {noteData ? (
+              <div>{renderTextWithLinksAndSpacesAndNewlines(noteData)}</div>
+            ) : (
+              <p className="text-gray-500">Belum ada catatan.</p>
+            )}
+            </div>
           <div className="label">
           </div>
         </label>
-        <div className="modal-action">
-          <form method="dialog">
-            {/* if there is a button, it will close the modal */}
-            <button className="btn">Close</button>
-          </form>
-        </div>
       </div>
     </dialog>
     {/* Progress Detail */}
     <dialog id="progressModal" className="modal">
       <div className="modal-box w-11/12 max-w-5xl">
-        <h3 className="font-bold text-lg">Kemajuan {mitraBrandName}</h3>
-        <p className="text-sm text-gray-400">Data tersimpan otomatis</p>
-        <div className="divider divider-info"></div>
-        <div className='columns-3'>
+        <div className='justify-between flex'>
+          <h3 className="font-bold text-lg">Kemajuan {mitraBrandName}</h3>
+          <div className='modal-dialog'>
+            <form method="dialog">
+              <button className="btn">Tutup</button>
+            </form>
+          </div>
         </div>
-        <div className="modal-action">
-          <form method="dialog">
-            {/* if there is a button, it will close the modal */}
-            <button className="btn">Close</button>
-          </form>
+        <p className="text-sm text-gray-400 -mt-5">Otomatis tersimpan</p>
+        <div className="divider divider-info"></div>
+        {/* Progress */}
+        <div>
+          <div className="flex gap-x-3">
+            <div className="w-16 text-end">
+              <span className="text-xs text-gray-500 dark:text-neutral-400">12:05PM</span>
+            </div>
+            <div className="relative last:after:hidden after:absolute after:top-7 after:bottom-0 after:start-3.5 after:w-px after:-translate-x-[0.5px] after:bg-gray-200 dark:after:bg-neutral-700">
+              <div className="relative z-10 size-7 flex justify-center items-center">
+                <div className="size-2 rounded-full bg-gray-400 dark:bg-neutral-600"></div>
+              </div>
+            </div>
+            <div className="grow pt-0.5 pb-8">
+              <h3 className="flex gap-x-1.5 font-semibold text-gray-800 dark:text-white">
+                Marked as completed
+              </h3>
+              <p className="mt-1 text-sm text-gray-600 dark:text-neutral-400">
+                Finally! You can check it out here.
+              </p>
+              <button
+                type="button"
+                className="mt-1 -ms-1 p-1 inline-flex items-center gap-x-2 text-xs rounded-lg border border-transparent text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700"
+              >
+                <Image
+                  className="shrink-0 rounded-full"
+                  src="https://images.unsplash.com/photo-1659482633369-9fe69af50bfb?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=3&w=320&h=320&q=80"
+                  alt="Avatar"
+                  width={30}
+                  height={30}
+                  priority
+                  unoptimized
+                />
+                James Collins
+              </button>
+            </div>
+          </div>
+          <div className="flex gap-x-3">
+            <div className="w-16 text-end">
+              <span className="text-xs text-gray-500 dark:text-neutral-400">12:05PM</span>
+            </div>
+            <div className="relative last:after:hidden after:absolute after:top-7 after:bottom-0 after:start-3.5 after:w-px after:-translate-x-[0.5px] after:bg-gray-200 dark:after:bg-neutral-700">
+              <div className="relative z-10 size-7 flex justify-center items-center">
+                <div className="size-2 rounded-full bg-gray-400 dark:bg-neutral-600"></div>
+              </div>
+            </div>
+            <div className="grow pt-0.5 pb-8">
+              <h3 className="flex gap-x-1.5 font-semibold text-gray-800 dark:text-white">
+                Marked as completed
+              </h3>
+              <p className="mt-1 text-sm text-gray-600 dark:text-neutral-400">
+                Finally! You can check it out here.
+              </p>
+              <button
+                type="button"
+                className="mt-1 -ms-1 p-1 inline-flex items-center gap-x-2 text-xs rounded-lg border border-transparent text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700"
+              >
+                <Image
+                  className="shrink-0 rounded-full"
+                  src="https://images.unsplash.com/photo-1659482633369-9fe69af50bfb?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=3&w=320&h=320&q=80"
+                  alt="Avatar"
+                  width={30}
+                  height={30}
+                  priority
+                  unoptimized
+                />
+                James Collins
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </dialog>
@@ -856,7 +996,7 @@ const Table: React.FC = () => {
                                     className="input input-bordered input-sm hover:border-black w-full max-w-xs"
                                     />
                                 ) : (
-                                    <p className={`${items.lokasi ? "" : "text-gray-400"}`}>{items.lokasi ? items.lokasi : "lokasi perusahaan, wfo/wfh"}</p>
+                                    <p className={`${items.lokasi ? "" : "text-gray-400"}`}>{items.lokasi ? items.lokasi : "kota perusahaan, wfo/wfh"}</p>
                                 )}
                                 {activeColLocation === items.rowId ? (
                                     <svg 
@@ -953,7 +1093,7 @@ const Table: React.FC = () => {
                                 className="btn btn-xs hover:bg-gray-200 hover:scale-105 dark:bg-gray-50 dark:text-black bg-gray-200 rounded-md text-gray-700 mr-2" 
                                 onClick={() => {
                                   (document.getElementById('detailModal') as HTMLDialogElement)?.showModal()
-                                  handleToggleNoteTextArea(items.note ,items.rowId, items.mitra_brand_name, "note")
+                                  handleToggleNoteTextArea(items.rowId, items.mitra_brand_name, "note")
                                 }}>
                                 Catatan
                               </button>
