@@ -388,7 +388,7 @@ const Table: React.FC = () => {
     <>
     {/* Modal Detail */}
     <dialog id="detailModal" className="modal">
-      <div className="modal-box w-11/12 max-w-5xl">
+      <div className="modal-box w-11/12 max-w-3xl">
       <div className='justify-between flex'>
         <h3 className="font-bold text-lg">Catatan {mitraBrandName}</h3>
         <div className='modal-dialog'>
