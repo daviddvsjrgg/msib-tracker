@@ -47,7 +47,27 @@ export async function addData(userId: string, namaPerusahaan: string): Promise<v
 
     // Set the data at the specified reference
     await set(newTableRef, data);
-    console.log('Data added:', { data });
+  } catch (error) {
+    console.error('Error adding data:', error);
+    throw error;
+  }
+}
+
+export async function addProgressData(userId: string, rowId: string): Promise<void> {
+  try {
+    // Proceed to add new data if under limit
+    const progressRowId = uuidv4();
+    const newTableRef = ref(db, `users/${userId}/table/${rowId}/progress/${progressRowId}`);
+
+    const data = {
+      progressId: progressRowId,
+      progressName: "Lolos Tahapan?",
+      description: "",
+      createdAt: new Date().toISOString(),
+    };
+
+    // Set the data at the specified reference
+    await set(newTableRef, data);
   } catch (error) {
     console.error('Error adding data:', error);
     throw error;

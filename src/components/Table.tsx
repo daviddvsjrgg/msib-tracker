@@ -1,13 +1,13 @@
 'use client'
 
-import Image from 'next/image';
 import React, { useEffect, useState } from 'react'
 import { authenticateAndSave } from '@/api/account/authenticateAndSave';
-import { addData } from '@/api/usersTable/addData/addData';
+import { addData, addProgressData } from '@/api/usersTable/addData/addData';
 import { onValue, ref} from 'firebase/database';
 import { db } from '@/config/firebase';
-import { updateInput, updateOption } from '@/api/usersTable/editData/editData';
-import { deleteItem } from '@/api/usersTable/deleteData/deleteData';
+import { updateInput, updateInputRowProgressDesc, updateInputRowProgressName, updateOption } from '@/api/usersTable/editData/editData';
+import { deleteItem, deleteProgress } from '@/api/usersTable/deleteData/deleteData';
+import ProgressExample from '@/components/ProgressExample';
 
 interface TableData {
   rowId: string,
@@ -24,6 +24,12 @@ interface TableData {
   progress: string,
   createdAt: string,
   updatedAt: string,
+}
+interface ProgressData {
+  progressId: string,
+  progressName: string,
+  description: string,
+  createdAt: string,
 }
 
 const Table: React.FC = () => {
@@ -55,6 +61,8 @@ const Table: React.FC = () => {
   const [dbBrandColumn, setDbBrandColumn] = useState<string | null>('')
   const [dbPositionColumn, setDbPositionColumn] = useState<string | null>('')
   const [dbLocationColumn, setDbLocationColumn] = useState<string | null>('')
+  const [dbProgressRowName, setDbProgressRowName] = useState<string | null>('')
+  const [dbProgressRowDesc, setDbProgressRowDesc] = useState<string | null>('')
 
   // Column City
   const [activeColCompany, setActiveColCompany] = useState<string | null>(null);
@@ -78,6 +86,21 @@ const Table: React.FC = () => {
   const handleToggleColProgress = (id: string, dbLocationColumn: string) => {
     setDbLocationColumn(dbLocationColumn)
     setActiveColLocation(activeColLocation === id ? null : id);
+  };
+
+  // Column Location
+  const [activeRowProgressName, setActiveRowProgress] = useState<string | null>(null);
+
+  const handleToggleRowProgressName = (progressId: string, dbProgressRowName: string) => {
+    setDbProgressRowName(dbProgressRowName)
+    setActiveRowProgress(activeRowProgressName === progressId ? null : progressId);
+  };
+  // Column Location
+  const [activeRowProgressDesc, setActiveRowProgressDesc] = useState<string | null>(null);
+
+  const handleToggleRowProgressDesc = (progressId: string, dbProgressRowDesc: string) => {
+    setDbProgressRowDesc(dbProgressRowDesc)
+    setActiveRowProgressDesc(activeRowProgressDesc === progressId ? null : progressId);
   };
 
   // Column Note
@@ -161,11 +184,11 @@ const Table: React.FC = () => {
     }
   };
 
-  // Edit progress Input
-  const handleUpdateInputProgress = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const progressValue = e.target.value
+  // Edit location Input
+  const handleUpdateInputLocation = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const locationValue = e.target.value
     if (userId && activeColLocation && dbLocationColumn) {
-      updateInput(progressValue, userId, activeColLocation, dbLocationColumn);
+      updateInput(locationValue, userId, activeColLocation, dbLocationColumn);
     }
   };
 
@@ -176,11 +199,57 @@ const Table: React.FC = () => {
       updateInput(noteValue, userId, noteRowId, dbNoteColumn);
     }
   };
+
+  
+  // Edit Progress Name Input
+  const handleUpdateInputProgressName = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const progressNameValue = e.target.value
+    if (userId && activeRowProgressName && dbProgressRowName && progressRowId) {
+      updateInputRowProgressName(progressNameValue, progressRowId, userId, activeRowProgressName, dbProgressRowName);
+    }
+  };
+
+  // Edit Progress Desc Input
+  const handleUpdateTextAreaProgressDesc = async (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const progressDescValue = e.target.value
+    if (userId && progressRowId && dbProgressRowDesc && activeRowProgressDesc) {
+      updateInputRowProgressDesc(progressDescValue, progressRowId, userId, activeRowProgressDesc, dbProgressRowDesc);
+    }
+  };
+
+  const renderTextWithLinksAndSpacesAndNewlines = (text: string) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+
+    return text.split(/\n/).map((line, index) => (
+      <React.Fragment key={index}>
+        {line.split(urlRegex).map((part, i) => {
+          if (part.match(urlRegex)) {
+            return (
+              <a href={part} key={i} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
+                {part}
+              </a>
+            );
+          }
+
+          // Replace multiple tabs and spaces
+          const formattedText = part
+            .replace(/\t+/g, (tabs) => '\u00A0'.repeat(tabs.length * 4)) // Replace tabs with 4 non-breaking spaces per tab
+            .replace(/ {2,}/g, (spaces) => '\u00A0'.repeat(spaces.length)); // Replace multiple spaces with &nbsp;
+
+          return <span key={i}>{formattedText}</span>;
+        })}
+        {/* Add <br /> for every newline except for the last */}
+        {index < text.split(/\n/).length - 1 && <br />}
+      </React.Fragment>
+    ));
+  };
+
+  const [progressRowId, setProgressRowId] = useState<string | null>('')
  
   // Progress 
   const handleProgress = (rowId: string, mitra_brand_name: string) => {
     setMitraBrandName(mitra_brand_name)
-    setNoteRowId(rowId)
+    setProgressRowId(rowId)
   }
 
 
@@ -206,6 +275,16 @@ const Table: React.FC = () => {
     }
   }, []);
 
+  // Add Progress
+  const handleAddProgress = async (rowId: string) => {
+    console.log(rowId)
+    if (userId) {
+      addProgressData(userId, rowId)
+    } else {
+      console.log("Error adding progress")
+    }
+  }
+
   // Sorting
   const [sortType, setSortType] = useState<string | null>(null);
   const [sortStatus, setSortStatus] = useState<string | null>(null);
@@ -219,6 +298,36 @@ const Table: React.FC = () => {
     setSortType("")
     setSortStatus(name)
   }
+
+  // Fetch Progress
+  const [progressData, setProgressData] = useState<ProgressData[]>([]);
+
+  useEffect(() => {
+    try {
+      if (userId) {
+        const dbRef = ref(db, `users/${userId}/table/${progressRowId}/progress`);
+        // Fetch data in real-time
+        const unsubscribe = onValue(dbRef, (snapshot) => {
+          const fetchedData: ProgressData[] = [];
+          snapshot.forEach((childSnapshot) => {
+            const item = childSnapshot.val() as ProgressData;
+            fetchedData.push(item);
+          });
+    
+          // Sorting logic
+          let sortedData = [...fetchedData];
+          sortedData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+          setProgressData(sortedData);
+        });
+    
+        // Cleanup subscription on unmount
+        return () => unsubscribe();
+      }
+    } catch (error) {
+      console.log("fetch fail: " + error)
+    }
+    
+  }, [userId, progressRowId]);
 
   // Fetch Table
   const [data, setData] = useState<TableData[]>([]);
@@ -275,33 +384,6 @@ const Table: React.FC = () => {
     
   }, [userId, sortStatus, sortType]);
 
-  const renderTextWithLinksAndSpacesAndNewlines = (text: string) => {
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-
-    return text.split(/\n/).map((line, index) => (
-      <React.Fragment key={index}>
-        {line.split(urlRegex).map((part, i) => {
-          if (part.match(urlRegex)) {
-            return (
-              <a href={part} key={i} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
-                {part}
-              </a>
-            );
-          }
-
-          // Replace multiple tabs and spaces
-          const formattedText = part
-            .replace(/\t+/g, (tabs) => '\u00A0'.repeat(tabs.length * 4)) // Replace tabs with 4 non-breaking spaces per tab
-            .replace(/ {2,}/g, (spaces) => '\u00A0'.repeat(spaces.length)); // Replace multiple spaces with &nbsp;
-
-          return <span key={i}>{formattedText}</span>;
-        })}
-        {/* Add <br /> for every newline except for the last */}
-        {index < text.split(/\n/).length - 1 && <br />}
-      </React.Fragment>
-    ));
-  };
-
   return (
     <>
     {/* Modal Detail */}
@@ -315,7 +397,7 @@ const Table: React.FC = () => {
           </form>
         </div>
       </div>
-        <p className="text-sm text-gray-400 -mt-5">Otomatis tersimpan</p>
+        <p className="text-sm text-gray-400 xl:-mt-5">Otomatis tersimpan</p>
         <div className="divider divider-info -mb-1"></div>
         <label className="form-control">
           <div className="label">
@@ -380,7 +462,7 @@ const Table: React.FC = () => {
     </dialog>
     {/* Progress Detail */}
     <dialog id="progressModal" className="modal">
-      <div className="modal-box w-11/12 max-w-5xl">
+      <div className="modal-box w-11/12 max-w-3xl">
         <div className='justify-between flex'>
           <h3 className="font-bold text-lg">Kemajuan {mitraBrandName}</h3>
           <div className='modal-dialog'>
@@ -389,76 +471,250 @@ const Table: React.FC = () => {
             </form>
           </div>
         </div>
-        <p className="text-sm text-gray-400 -mt-5">Otomatis tersimpan</p>
-        <div className="divider divider-info"></div>
+        <p className="text-sm text-gray-400 xl:-mt-5">Otomatis tersimpan</p>
+        <div>
+          <button 
+          onClick={() => {
+            handleAddProgress(progressRowId? progressRowId : "")
+          }}
+          className="btn btn-sm mt-2 hover:scale-105 duration-150 dark:bg-white dark:text-black dark:hover:bg-black dark:hover:text-white">
+            Tambah Kemajuan
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+          </button>
+        </div>
+        <div className="dropdown mt-3">
+          <div tabIndex={0} role="button" className={`btn btn-xs bg-white border-gray-400 dark:text-black dark:hover:text-white`}>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
+          </svg>
+            Mode
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="size-5 hidden xl:block"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m19.5 8.25-7.5 7.5-7.5-7.5"
+              />
+            </svg>
+          </div>
+          <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-50 w-52 p-2 shadow">
+            <li onClick={() => {
+              localStorage.setItem('modeView', "edit")
+              setModeView("edit")
+            }}
+            className={`mt-1 ${modeView === "edit" ? "bg-gray-200 dark:bg-gray-50/5 rounded-md" : ""}`}>
+              <div className='justify-between'>
+                <a>
+                  Edit
+                </a>
+                {modeView === "edit" && (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="green" className="size-4">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                    </svg>
+                  </>
+                )}
+              </div>
+            </li>
+            <li onClick={() => {
+              localStorage.setItem('modeView', "view")
+              setModeView("view")
+            }} 
+                  className={`mt-1 ${modeView === "view" ? "bg-gray-200 dark:bg-gray-50/5 rounded-md" : ""}`}>
+              <div className='justify-between'>
+                <a>
+                  Lihat Aja
+                </a>
+                {modeView === "view" && (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="green" className="size-4">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                    </svg>
+                  </>
+                )}
+              </div>
+            </li>
+          </ul>
+        </div> 
+        <div className="divider divider-info mt-1"></div>
         {/* Progress */}
         <div>
-          <div className="flex gap-x-3">
-            <div className="w-16 text-end">
-              <span className="text-xs text-gray-500 dark:text-neutral-400">12:05PM</span>
-            </div>
-            <div className="relative last:after:hidden after:absolute after:top-7 after:bottom-0 after:start-3.5 after:w-px after:-translate-x-[0.5px] after:bg-gray-200 dark:after:bg-neutral-700">
-              <div className="relative z-10 size-7 flex justify-center items-center">
-                <div className="size-2 rounded-full bg-gray-400 dark:bg-neutral-600"></div>
-              </div>
-            </div>
-            <div className="grow pt-0.5 pb-8">
-              <h3 className="flex gap-x-1.5 font-semibold text-gray-800 dark:text-white">
-                Marked as completed
-              </h3>
-              <p className="mt-1 text-sm text-gray-600 dark:text-neutral-400">
-                Finally! You can check it out here.
-              </p>
-              <button
-                type="button"
-                className="mt-1 -ms-1 p-1 inline-flex items-center gap-x-2 text-xs rounded-lg border border-transparent text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700"
-              >
-                <Image
-                  className="shrink-0 rounded-full"
-                  src="https://images.unsplash.com/photo-1659482633369-9fe69af50bfb?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=3&w=320&h=320&q=80"
-                  alt="Avatar"
-                  width={30}
-                  height={30}
-                  priority
-                  unoptimized
-                />
-                James Collins
-              </button>
-            </div>
-          </div>
-          <div className="flex gap-x-3">
-            <div className="w-16 text-end">
-              <span className="text-xs text-gray-500 dark:text-neutral-400">12:05PM</span>
-            </div>
-            <div className="relative last:after:hidden after:absolute after:top-7 after:bottom-0 after:start-3.5 after:w-px after:-translate-x-[0.5px] after:bg-gray-200 dark:after:bg-neutral-700">
-              <div className="relative z-10 size-7 flex justify-center items-center">
-                <div className="size-2 rounded-full bg-gray-400 dark:bg-neutral-600"></div>
-              </div>
-            </div>
-            <div className="grow pt-0.5 pb-8">
-              <h3 className="flex gap-x-1.5 font-semibold text-gray-800 dark:text-white">
-                Marked as completed
-              </h3>
-              <p className="mt-1 text-sm text-gray-600 dark:text-neutral-400">
-                Finally! You can check it out here.
-              </p>
-              <button
-                type="button"
-                className="mt-1 -ms-1 p-1 inline-flex items-center gap-x-2 text-xs rounded-lg border border-transparent text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700"
-              >
-                <Image
-                  className="shrink-0 rounded-full"
-                  src="https://images.unsplash.com/photo-1659482633369-9fe69af50bfb?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=3&w=320&h=320&q=80"
-                  alt="Avatar"
-                  width={30}
-                  height={30}
-                  priority
-                  unoptimized
-                />
-                James Collins
-              </button>
-            </div>
-          </div>
+              {progressData.length === 0 ? (
+                <>
+                  <ProgressExample />
+                </>
+              ) : (
+                <>
+                {progressData.map((progress) => (
+                  <>
+                    <div className="flex gap-x-3">
+                        <div className="w-auto text-end">
+                        <span className="text-xs text-gray-500 dark:text-neutral-400">
+                          {new Date(progress.createdAt).toLocaleDateString('id-ID', {
+                            timeZone: 'Asia/Jakarta',
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                          }).replace(/(?<=\w{3})\s/, ', ')}
+                        </span>
+                        </div>
+                          <div className='text-end tooltip' data-tip="Hapus Kemajuan">
+                            {modeView == "edit" && (
+                              <>
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg" 
+                                  fill="none" 
+                                  viewBox="0 0 24 24" 
+                                  strokeWidth={1.5} 
+                                  stroke="red"
+                                  onClick={()=>{
+                                    if (userId && progressRowId) {
+                                      deleteProgress(userId, progressRowId, progress.progressId)
+                                    }
+                                  }}
+                                  className="scale-110 hover:scale-125 hover:bg-gray-200 hover:rounded-md hover:cursor-pointer duration-150 size-6 p-1"
+                                  >
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                </svg> 
+                              </>
+                            )}
+                          </div>
+                        <div className="relative last:after:hidden after:absolute after:top-7 after:bottom-0 after:start-3.5 after:w-px after:-translate-x-[0.5px] after:bg-gray-200 dark:after:bg-neutral-700">
+                          <div className="relative z-10 size-7 flex justify-center items-center">
+                            <div className="size-2 rounded-full bg-gray-400 dark:bg-neutral-600"></div>
+                          </div>
+                        </div>
+                        <div className="grow pt-0.5 pb-8">
+                          <div className='flex'>
+                          {activeRowProgressName === progress.progressId ? (
+                              <input
+                              value={progress.progressName}
+                              onChange={handleUpdateInputProgressName}
+                              type="text"
+                              placeholder="Type here"
+                              className="input input-bordered input-sm hover:border-black w-full max-w-xs"
+                              />
+                          ) : (
+                            <h3 className="flex gap-x-1.5 font-semibold text-gray-800 dark:text-white">
+                              {progress.progressName}
+                              </h3>
+                          )}
+                            {activeRowProgressName === progress.progressId ? (
+                                  <svg 
+                                    xmlns="http://www.w3.org/2000/svg" 
+                                    fill="none" viewBox="0 0 24 24" 
+                                    strokeWidth={1.5} 
+                                    stroke="green"
+                                    className="hover:scale-120 hover:bg-gray-200 p-1 ml-2 hover:rounded-md hover:cursor-pointer duration-150 size-7"
+                                    onClick={() => {
+                                      handleToggleRowProgressName(progress.progressId, "progressName")
+                                    }}
+                                    >
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                  </svg>
+                              ) : (
+                                <>
+                                  {modeView === "edit" && (
+                                    <>
+                                    <div className='xl:tooltip xl:tooltip-right' data-tip="Edit nama kemajuan">
+                                        <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        strokeWidth={1.5}
+                                        stroke="currentColor"
+                                        className="hover:scale-125 hover:bg-gray-200 ml-2 p-1 -mt-0.5 hover:rounded-md hover:cursor-pointer duration-150 size-6 dark:hover:bg-gray-50/5"
+                                        onClick={() => {
+                                          handleToggleRowProgressName(progress.progressId, "progressName")
+                                        }}
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          d="M16.862 4.487l1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487z"
+                                        />
+                                      </svg>
+                                    </div>
+                                    </>
+                                  )}
+                                </>
+                              )}
+                            </div>
+                            {modeView === "edit" ? (
+                              <>
+                                <div className='flex'>
+                                  {activeRowProgressDesc === progress.progressId ? (
+                                    <>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <p className="mt-1.5 text-sm text-gray-600 dark:text-neutral-400">
+                                        {renderTextWithLinksAndSpacesAndNewlines(progress.description)}
+                                      </p>
+                                    </>
+                                  )}
+                                    {activeRowProgressDesc === progress.progressId ? (
+                                        <>
+                                          <textarea
+                                            value={progress.description}
+                                            onChange={handleUpdateTextAreaProgressDesc}
+                                            className="textarea textarea-bordered h-auto w-full display" 
+                                          />
+                                          <svg 
+                                            xmlns="http://www.w3.org/2000/svg" 
+                                            fill="none" viewBox="0 0 24 24" 
+                                            strokeWidth={1.5} 
+                                            stroke="green"
+                                            onClick={() => handleToggleRowProgressDesc(progress.progressId, "description")}
+                                            className="ml-2 mt-1 scale-125 hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-6"
+                                          >
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                          </svg>
+                                        </>
+                                      ): (
+                                        <>
+                                          <div className='xl:tooltip xl:tooltip-right' data-tip="Edit deskripsi">
+                                            <svg
+                                              xmlns="http://www.w3.org/2000/svg"
+                                              fill="none"
+                                              viewBox="0 0 24 24"
+                                              strokeWidth={1.5}
+                                              stroke="currentColor"
+                                              onClick={() => handleToggleRowProgressDesc(progress.progressId, "description")}
+                                              className="ml-2 mt-1 hover:scale-150 hover:bg-gray-200 p-1 hover:rounded-md hover:cursor-pointer duration-150 size-6 dark:hover:bg-gray-50/5"
+                                            >
+                                              <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487z"
+                                                />
+                                            </svg>
+                                          </div>
+                                        </>
+                                      )}
+                                  </div>
+                              </>
+                            ) : (
+                              <>
+                                <p className="mt-1.5 text-sm text-gray-600 dark:text-neutral-400">
+                                 {renderTextWithLinksAndSpacesAndNewlines(progress.description)}
+                                </p>
+                              </>
+                            )}
+                        </div>
+                    </div>
+                  </>
+                ))}
+                </>
+              )}
         </div>
       </div>
     </dialog>
@@ -856,7 +1112,7 @@ const Table: React.FC = () => {
                     return (
                     <>
                       <tbody key={items.rowId}>
-                        <tr className='hover:bg-gray-100/65 dark:hover:bg-gray-50/5'>
+                        <tr className='hover:bg-gray-100 dark:hover:bg-gray-50/5'>
                           <td>{index + 1}</td>
                           <td>
                             <div className="flex items-center gap-3">
@@ -869,7 +1125,20 @@ const Table: React.FC = () => {
                                   className="input input-bordered input-sm hover:border-black w-full max-w-xs"
                                 />
                               ) : (
-                                <div className="font-bold">{items.mitra_brand_name}</div>
+                                <div className="font-bold">
+                                  {items.mitra_brand_name
+                                  ? items.mitra_brand_name.split(' ').map((word, index) => (
+                                      index > 0 && index % 2 === 0 ? (
+                                        <React.Fragment key={index}>
+                                          <br />
+                                          {word}{' '}
+                                        </React.Fragment>
+                                      ) : (
+                                        word + ' '
+                                      )
+                                    ))
+                                  : ""}
+                                </div>
                               )}
                               {activeColCompany === items.rowId ? (
                                 <svg 
@@ -947,7 +1216,7 @@ const Table: React.FC = () => {
                                   className="input input-bordered input-sm hover:border-black w-full max-w-xs"
                                 />
                               ) : (
-                                <p className={`${items.nama_kegiatan ? "" : "text-gray-400"}`}>{items.nama_kegiatan ? items.nama_kegiatan : "posisi yang di lamar"}</p>
+                                <p className={`${items.nama_kegiatan ? "" : "text-gray-400"}`}>{items.nama_kegiatan ? items.nama_kegiatan : "HR/IT/Sales?"}</p>
                               )}
                               {activeColPosition === items.rowId ? (
                                 <svg 
@@ -964,7 +1233,7 @@ const Table: React.FC = () => {
                                 <>
                                 {modeView === "edit" && (
                                   <>
-                                     <svg
+                                    <svg
                                       xmlns="http://www.w3.org/2000/svg"
                                       fill="none"
                                       viewBox="0 0 24 24"
@@ -977,7 +1246,7 @@ const Table: React.FC = () => {
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
                                         d="M16.862 4.487l1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487z"
-                                      />
+                                        />
                                     </svg>
                                   </>
                                 )}
@@ -990,13 +1259,13 @@ const Table: React.FC = () => {
                                 {activeColLocation === items.rowId ? (
                                     <input
                                     value={items.lokasi}
-                                    onChange={handleUpdateInputProgress}
+                                    onChange={handleUpdateInputLocation}
                                     type="text"
                                     placeholder="Type here"
                                     className="input input-bordered input-sm hover:border-black w-full max-w-xs"
                                     />
                                 ) : (
-                                    <p className={`${items.lokasi ? "" : "text-gray-400"}`}>{items.lokasi ? items.lokasi : "kota perusahaan, wfo/wfh"}</p>
+                                    <p className={`${items.lokasi ? "" : "text-gray-400"}`}>{items.lokasi ? items.lokasi : "kota, wfo/wfh?"}</p>
                                 )}
                                 {activeColLocation === items.rowId ? (
                                     <svg 
@@ -1099,19 +1368,21 @@ const Table: React.FC = () => {
                               </button>
                               {modeView === "edit" && (
                                 <>
-                                  <svg
-                                    onClick={() => {(document.getElementById('deleteModal') as HTMLDialogElement)?.showModal()
-                                      handleDeleteRowData(items.rowId, items.mitra_brand_name)
-                                    }}
-                                    xmlns="http://www.w3.org/2000/svg" 
-                                    fill="none" 
-                                    viewBox="0 0 24 24" 
-                                    strokeWidth={1.5} 
-                                    stroke="red" 
-                                    className="scale-110 hover:scale-125 hover:bg-gray-200 hover:rounded-md hover:cursor-pointer duration-150 size-6 p-1"
-                                  >
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                                  </svg> 
+                                  <div className='tooltip' data-tip="Hapus perusahaan">
+                                    <svg
+                                      onClick={() => {(document.getElementById('deleteModal') as HTMLDialogElement)?.showModal()
+                                        handleDeleteRowData(items.rowId, items.mitra_brand_name)
+                                      }}
+                                      xmlns="http://www.w3.org/2000/svg" 
+                                      fill="none" 
+                                      viewBox="0 0 24 24" 
+                                      strokeWidth={1.5} 
+                                      stroke="red" 
+                                      className="scale-110 hover:scale-125 hover:bg-gray-200 hover:rounded-md hover:cursor-pointer duration-150 size-6 p-1"
+                                      >
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                    </svg> 
+                                  </div>
                                 </>
                               )}
                             </div>

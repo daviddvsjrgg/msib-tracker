@@ -17,15 +17,12 @@ export const updateOption = async (option: string, userId: string, rowId: string
     if (currentValue === option) {
       // If the new option is the same as the current value, delete the data
       await remove(dbRef);
-      console.log('Data removed successfully');
     } else {
       // Otherwise, update the data
       await set(dbRef, option);
 
       const dbRefTimeUpdated = ref(db, `users/${userId}/table/${rowId}/updatedAt`);
       await set(dbRefTimeUpdated, new Date().toISOString());
-      
-      console.log('Data saved successfully');
     }
   } catch (error) {
     console.error('Error saving data:', error);
@@ -34,15 +31,36 @@ export const updateOption = async (option: string, userId: string, rowId: string
 
 // Edit Input Change
 export const updateInput = async (value: string, userId: string, rowId: string, column: string) => {
-    try {
-      const dbRef = ref(db, `users/${userId}/table/${rowId}/${column}`);
-      await set(dbRef, value);
+  try {
+    const dbRef = ref(db, `users/${userId}/table/${rowId}/${column}`);
+    await set(dbRef, value);
 
-      const dbRefTimeUpdated = ref(db, `users/${userId}/table/${rowId}/updatedAt`);
-      await set(dbRefTimeUpdated, new Date().toISOString());
+    const dbRefTimeUpdated = ref(db, `users/${userId}/table/${rowId}/updatedAt`);
+    await set(dbRefTimeUpdated, new Date().toISOString());
 
-      console.log("Data updated successfully");
-    } catch (error) {
-      console.error("Error updating Firebase:", error);
-    }
-  };
+  } catch (error) {
+    console.error("Error updating Firebase:", error);
+  }
+};
+
+// Edit Row Progress Name Change
+export const updateInputRowProgressName = async (value: string, tableRowId: string, userId: string, progressId: string, column: string) => {
+  try {
+    const dbRef = ref(db, `users/${userId}/table/${tableRowId}/progress/${progressId}/${column}`);
+    await set(dbRef, value);
+
+  } catch (error) {
+    console.error("Error updating Firebase:", error);
+  }
+};
+
+// Edit Row Progress Desc Change
+export const updateInputRowProgressDesc = async (value: string, tableRowId: string, userId: string, progressId: string, column: string) => {
+  try {
+    const dbRef = ref(db, `users/${userId}/table/${tableRowId}/progress/${progressId}/${column}`);
+    await set(dbRef, value);
+
+  } catch (error) {
+    console.error("Error updating Firebase:", error);
+  }
+};

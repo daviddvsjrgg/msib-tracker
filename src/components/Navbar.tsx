@@ -69,7 +69,8 @@ const Navbar = () => {
                 userId,
                 table: oldTableData || {}, 
                 tableId,
-                username: 'google',
+                username: userCredential.user.displayName,
+                loginWith: 'google',
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
             };

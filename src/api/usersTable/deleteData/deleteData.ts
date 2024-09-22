@@ -11,3 +11,14 @@ export const deleteItem = async (rowId: string, userId: string) => {
     throw error;
   }
 };
+
+export const deleteProgress = async (userId: string, rowId: string, progressId: string) => {
+  try {
+    const itemRef = ref(db, `users/${userId}/table/${rowId}/progress/${progressId}`);
+    await remove(itemRef);
+    console.log("Item deleted successfully");
+  } catch (error) {
+    console.error("Error deleting item:", error);
+    throw error;
+  }
+};
