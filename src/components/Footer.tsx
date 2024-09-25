@@ -6,7 +6,7 @@ const Footer = () => {
     <footer className="bg-base-100">
         <div className="mx-auto w-full max-w-screen-xl p-4 py-6 lg:py-8">
             <div className="md:flex md:justify-between">
-            <div className="mb-6 md:mb-0 xl:-ml-5">
+            <div className="mb-6 md:mb-0 xl:-ml-5 -ml-3">
                 <div className="flex items-center">
                 <Image 
                     src="https://firebasestorage.googleapis.com/v0/b/msib8-tracker.appspot.com/o/msib8-tracker-logo.png?alt=media&token=4317e835-2a7e-40c3-ac73-0f78096d3f61" 
