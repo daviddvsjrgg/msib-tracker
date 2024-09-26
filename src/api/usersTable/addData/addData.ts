@@ -19,8 +19,8 @@ export async function addData(userId: string, namaPerusahaan: string): Promise<v
       const data = snapshot.val();
       const totalEntries = Object.keys(data).length;
 
-      if (totalEntries >= 22) {
-        throw new Error('Cannot add more data. Limit of 22 entries reached.');
+      if (totalEntries >= data.maxTotalData) {
+        throw new Error(`Cannot add more data. Limit of ${data.maxTotalData} entries reached.`);
       }
     }
 
@@ -61,7 +61,7 @@ export async function addProgressData(userId: string, rowId: string): Promise<vo
 
     const data = {
       progressId: progressRowId,
-      progressName: "Lolos Tahapan?",
+      progressName: "Lolos Tahap ?",
       description: "",
       createdAt: new Date().toISOString(),
     };

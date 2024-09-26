@@ -71,6 +71,7 @@ const Navbar = () => {
                 tableId,
                 username: userCredential.user.displayName,
                 loginWith: 'google',
+                maxTotalData: 22,
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
             };

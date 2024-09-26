@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { authenticateAndSave } from '@/api/account/authenticateAndSave';
 import { addData, addProgressData } from '@/api/usersTable/addData/addData';
-import { onValue, ref} from 'firebase/database';
+import { get, onValue, ref} from 'firebase/database';
 import { db } from '@/config/firebase';
 import { updateInput, updateInputRowProgressDesc, updateInputRowProgressName, updateOption } from '@/api/usersTable/editData/editData';
 import { deleteItem, deleteProgress } from '@/api/usersTable/deleteData/deleteData';
@@ -263,15 +263,15 @@ const Table: React.FC = () => {
   }
 
   // Mode
-  const [modeView, setModeView] = useState('');
+  const [modeViewTable, setModeViewTable] = useState('');
   
   // Effect to initialize state from localStorage on component mount
   useEffect(() => {
-    const savedModeView = localStorage.getItem('modeView');
+    const savedModeView = localStorage.getItem('modeViewTable');
     if (savedModeView) {
-      setModeView(savedModeView);
+      setModeViewTable(savedModeView);
     } else {
-      setModeView("edit")
+      setModeViewTable("edit")
     }
   }, []);
 
@@ -331,6 +331,25 @@ const Table: React.FC = () => {
 
   // Fetch Table
   const [data, setData] = useState<TableData[]>([]);
+  const [maxTotalData, setMaxTotalData] = useState<number | null>(null);
+
+
+  useEffect(() => {
+      const currenUserRef = ref(db, `users/${userId}`);
+
+      const unsubscribe = onValue(currenUserRef, (snapshot) => {
+          if (snapshot.exists()) {
+              const userData = snapshot.val();
+              setMaxTotalData(userData.maxTotalData); 
+          } else {
+              setMaxTotalData(null);
+          }
+      }, (error) => {
+          console.error("Error fetching data:", error); 
+      });
+
+      return () => unsubscribe();
+  }, [userId]);
 
   useEffect(() => {
     try {
@@ -370,6 +389,7 @@ const Table: React.FC = () => {
           }
     
           setData(sortedData);
+
           setSortType(sortType);
           setSortStatus(sortStatus);
           setLoading(false)
@@ -507,15 +527,15 @@ const Table: React.FC = () => {
           </div>
           <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-50 w-52 p-2 shadow">
             <li onClick={() => {
-              localStorage.setItem('modeView', "edit")
-              setModeView("edit")
+              localStorage.setItem('modeViewTable', "edit")
+              setModeViewTable("edit")
             }}
-            className={`mt-1 ${modeView === "edit" ? "bg-gray-200 dark:bg-gray-50/5 rounded-md" : ""}`}>
+            className={`mt-1 ${modeViewTable === "edit" ? "bg-gray-200 dark:bg-gray-50/5 rounded-md" : ""}`}>
               <div className='justify-between'>
                 <a>
                   Edit
                 </a>
-                {modeView === "edit" && (
+                {modeViewTable === "edit" && (
                   <>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="green" className="size-4">
                       <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
@@ -525,15 +545,15 @@ const Table: React.FC = () => {
               </div>
             </li>
             <li onClick={() => {
-              localStorage.setItem('modeView', "view")
-              setModeView("view")
+              localStorage.setItem('modeViewTable', "view")
+              setModeViewTable("view")
             }} 
-                  className={`mt-1 ${modeView === "view" ? "bg-gray-200 dark:bg-gray-50/5 rounded-md" : ""}`}>
+                  className={`mt-1 ${modeViewTable === "view" ? "bg-gray-200 dark:bg-gray-50/5 rounded-md" : ""}`}>
               <div className='justify-between'>
                 <a>
                   Lihat Aja
                 </a>
-                {modeView === "view" && (
+                {modeViewTable === "view" && (
                   <>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="green" className="size-4">
                       <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
@@ -567,7 +587,7 @@ const Table: React.FC = () => {
                         </span>
                         </div>
                           <div className='text-end tooltip' data-tip="Hapus Kemajuan">
-                            {modeView == "edit" && (
+                            {modeViewTable == "edit" && (
                               <>
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg" 
@@ -622,7 +642,7 @@ const Table: React.FC = () => {
                                   </svg>
                               ) : (
                                 <>
-                                  {modeView === "edit" && (
+                                  {modeViewTable === "edit" && (
                                     <>
                                     <div className='xl:tooltip xl:tooltip-right' data-tip="Edit nama kemajuan">
                                         <svg
@@ -648,7 +668,7 @@ const Table: React.FC = () => {
                                 </>
                               )}
                             </div>
-                            {modeView === "edit" ? (
+                            {modeViewTable === "edit" ? (
                               <>
                                 <div className='flex'>
                                   {activeRowProgressDesc === progress.progressId ? (
@@ -747,22 +767,24 @@ const Table: React.FC = () => {
             {/* if there is a button, it will close the modal */}
             <button className="btn mx-2">Tutup</button>
           </form>
-          {data.length >= 22 ? (
-            <>
-              <button disabled className='btn text-black bg-gray-200 dark:hover:bg-gray-300'>Limit 😊</button>
-            </>
+          {maxTotalData !== null && data.length >= maxTotalData ? (
+              <>
+                  <button disabled className='btn text-black bg-gray-200 dark:hover:bg-gray-300'>
+                      Limit 😊
+                  </button>
+              </>
           ) : namaPerusahaanIsEmpty ? (
-            <>
-              <button onClick={handleTambahPerusahaan} className="btn btn-info hover:text-gray-800 text-white ">
-                Tambahkan
-              </button>
-            </>
+              <>
+                  <button onClick={handleTambahPerusahaan} className="btn btn-info hover:text-gray-800 text-white ">
+                      Tambahkan
+                  </button>
+              </>
           ) : (
-            <form method="dialog">
-              <button onClick={handleTambahPerusahaan} className="btn btn-info hover:text-gray-800 text-white ">
-                Tambahkan
-              </button>
-            </form>
+              <form method="dialog">
+                  <button onClick={handleTambahPerusahaan} className="btn btn-info hover:text-gray-800 text-white ">
+                      Tambahkan
+                  </button>
+              </form>
           )}
         </div>
       </div>
@@ -812,7 +834,11 @@ const Table: React.FC = () => {
           <span className='text-white -ml-2'>Data baru ditambahkan</span>
         </div>
     )}
-        <div className={`text-xl badge badge-ghost p-3 ${data.length !== 0 ? "" : "animate-pulse"}`}>{data.length !== 0 ? data.length : "0"}/22</div>
+      {loading ? (
+        <div className={`text-xl badge badge-ghost p-3 ${data.length !== 0 ? "" : "animate-pulse"}`}>0/22</div>
+      ) : (
+        <div className={`text-xl badge badge-ghost p-3 ${data.length !== 0 ? "" : ""}`}>{data.length !== 0 ? data.length : "0"}/{maxTotalData}</div>
+      )}
         <div className="inline-flex">
           <h2 className="card-title ml-1">List Perusahaan</h2>
           {loading ? (
@@ -861,15 +887,15 @@ const Table: React.FC = () => {
             </div>
             <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
               <li onClick={() => {
-                localStorage.setItem('modeView', "edit")
-                setModeView("edit")
+                localStorage.setItem('modeViewTable', "edit")
+                setModeViewTable("edit")
               }}
-              className={`mt-1 ${modeView === "edit" ? "bg-gray-200 dark:bg-gray-50/5 rounded-md" : ""}`}>
+              className={`mt-1 ${modeViewTable === "edit" ? "bg-gray-200 dark:bg-gray-50/5 rounded-md" : ""}`}>
                 <div className='justify-between'>
                   <a>
                     Edit
                   </a>
-                  {modeView === "edit" && (
+                  {modeViewTable === "edit" && (
                     <>
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="green" className="size-4">
                         <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
@@ -879,15 +905,15 @@ const Table: React.FC = () => {
                 </div>
               </li>
               <li onClick={() => {
-                localStorage.setItem('modeView', "view")
-                setModeView("view")
+                localStorage.setItem('modeViewTable', "view")
+                setModeViewTable("view")
               }} 
-                    className={`mt-1 ${modeView === "view" ? "bg-gray-200 dark:bg-gray-50/5 rounded-md" : ""}`}>
+                    className={`mt-1 ${modeViewTable === "view" ? "bg-gray-200 dark:bg-gray-50/5 rounded-md" : ""}`}>
                 <div className='justify-between'>
                   <a>
                     Lihat Aja
                   </a>
-                  {modeView === "view" && (
+                  {modeViewTable === "view" && (
                     <>
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="green" className="size-4">
                         <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
@@ -944,6 +970,22 @@ const Table: React.FC = () => {
                     Magang
                   </a>
                   {sortType === "Magang" && (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="green" className="size-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                      </svg>
+                    </>
+                  )}
+                </div>
+              </li>
+              <li className={`mt-1 ${sortType === "Mandiri" ? "bg-gray-200 dark:bg-gray-50/5 rounded-md" : ""}`} onClick={() => {
+                handleSortType("Mandiri")
+              }}>
+              <div className='justify-between'>
+                  <a>
+                    Mandiri
+                  </a>
+                  {sortType === "Mandiri" && (
                     <>
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="green" className="size-4">
                         <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
@@ -1155,7 +1197,7 @@ const Table: React.FC = () => {
                                 </svg>
                               ) : (
                                 <>
-                                  {modeView === "edit" && (
+                                  {modeViewTable === "edit" && (
                                     <>
                                       <svg
                                       xmlns="http://www.w3.org/2000/svg"
@@ -1188,7 +1230,8 @@ const Table: React.FC = () => {
                               <div className='xl:flex'>
                               <div tabIndex={0} role="button" className={`btn btn-sm
                               ${items.name_ref_kegiatan === "Studi Independen" ? 'bg-sky-400 hover:bg-sky-500 dark:bg-sky-700 darkhover:bg-sky-800 text-white ' :
-                                items.name_ref_kegiatan === "Magang" ? 'bg-gray-500 hover:bg-gray-600 text-white dark:bg-gray-700 dark:hover:bg-gray-800' : ""}`}>
+                                items.name_ref_kegiatan === "Magang" ? 'bg-gray-500 hover:bg-gray-600 text-white dark:bg-gray-700 dark:hover:bg-gray-800' : 
+                                items.name_ref_kegiatan === "Mandiri" ? 'hover:bg-gray-200 text-black dark:bg-gray-100 dark:hover:bg-gray-200' : ""}`}>
                                 {items.name_ref_kegiatan ? items.name_ref_kegiatan : "Opsi"}
                                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5 hidden xl:block">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
@@ -1201,6 +1244,9 @@ const Table: React.FC = () => {
                                 </li>
                                 <li>
                                   <a onClick={() => handleOptionSelect('Magang', items.rowId, "name_ref_kegiatan")}>Magang</a>
+                                </li>
+                                <li>
+                                  <a onClick={() => handleOptionSelect('Mandiri', items.rowId, "name_ref_kegiatan")}>Mandiri</a>
                                 </li>
                               </ul>
                             </div> 
@@ -1231,7 +1277,7 @@ const Table: React.FC = () => {
                                 </svg>
                               ) : (
                                 <>
-                                {modeView === "edit" && (
+                                {modeViewTable === "edit" && (
                                   <>
                                     <svg
                                       xmlns="http://www.w3.org/2000/svg"
@@ -1280,7 +1326,7 @@ const Table: React.FC = () => {
                                     </svg>
                                 ) : (
                                   <>
-                                    {modeView === "edit" && (
+                                    {modeViewTable === "edit" && (
                                       <>
                                         <svg
                                           xmlns="http://www.w3.org/2000/svg"
@@ -1366,7 +1412,7 @@ const Table: React.FC = () => {
                                 }}>
                                 Catatan
                               </button>
-                              {modeView === "edit" && (
+                              {modeViewTable === "edit" && (
                                 <>
                                   <div className='tooltip' data-tip="Hapus perusahaan">
                                     <svg

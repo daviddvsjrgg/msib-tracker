@@ -40,6 +40,7 @@ export async function authenticateAndSave(): Promise<{ userId: string, tableId: 
                                 tableId,
                                 username: 'anonymous',
                                 loginWith: 'anonymous',
+                                maxTotalData: 22,
                                 createdAt: new Date().toISOString(),
                                 updatedAt: new Date().toISOString(),
                             };
