@@ -21,7 +21,7 @@ interface TableData {
   semester_program: string,
   note: string,
   cycle: string,
-  progress: string,
+  progress: any,
   createdAt: string,
   updatedAt: string,
 }
@@ -262,16 +262,27 @@ const Table: React.FC = () => {
     setBrandToDelete(brandToDelete)
   }
 
-  // Mode
+  // Mode Table
   const [modeViewTable, setModeViewTable] = useState('');
   
-  // Effect to initialize state from localStorage on component mount
   useEffect(() => {
-    const savedModeView = localStorage.getItem('modeViewTable');
-    if (savedModeView) {
-      setModeViewTable(savedModeView);
+    const savedModeViewTable = localStorage.getItem('modeViewTable');
+    if (savedModeViewTable) {
+      setModeViewTable(savedModeViewTable);
     } else {
       setModeViewTable("edit")
+    }
+  }, []);
+
+  // Mode Table
+  const [modeViewProgress, setModeViewProgress] = useState('');
+  
+  useEffect(() => {
+    const savedModeViewProgress = localStorage.getItem('modeViewProgress');
+    if (savedModeViewProgress) {
+      setModeViewProgress(savedModeViewProgress);
+    } else {
+      setModeViewProgress("edit")
     }
   }, []);
 
@@ -355,17 +366,24 @@ const Table: React.FC = () => {
     try {
       if (userId) {
         const dbRef = ref(db, `users/${userId}/table`);
+  
         // Fetch data in real-time
         const unsubscribe = onValue(dbRef, (snapshot) => {
           const fetchedData: TableData[] = [];
           snapshot.forEach((childSnapshot) => {
             const item = childSnapshot.val() as TableData;
+  
+            // Ensure `progress` is an array, or convert it if it's not
+            if (item.progress && typeof item.progress === 'object') {
+              item.progress = Object.values(item.progress); // Convert object to array
+            }
+  
             fetchedData.push(item);
           });
-    
+  
           // Sorting logic
           let sortedData = [...fetchedData];
-          
+  
           if (sortType) {
             sortedData.sort((a, b) => {
               if (a.name_ref_kegiatan === sortType && b.name_ref_kegiatan !== sortType) {
@@ -387,26 +405,26 @@ const Table: React.FC = () => {
           } else {
             sortedData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
           }
-    
+  
           setData(sortedData);
-
           setSortType(sortType);
           setSortStatus(sortStatus);
-          setLoading(false)
+          setLoading(false);
         });
-    
+  
         // Cleanup subscription on unmount
         return () => unsubscribe();
       }
     } catch (error) {
-      console.log("fetch fail: " + error)
+      console.log("fetch fail: " + error);
     }
-    
   }, [userId, sortStatus, sortType]);
+  
+  
 
   return (
     <>
-    {/* Modal Detail */}
+    {/* Modal Note */}
     <dialog id="detailModal" className="modal">
       <div className="modal-box w-11/12 max-w-3xl">
       <div className='justify-between flex'>
@@ -527,15 +545,15 @@ const Table: React.FC = () => {
           </div>
           <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-50 w-52 p-2 shadow">
             <li onClick={() => {
-              localStorage.setItem('modeViewTable', "edit")
-              setModeViewTable("edit")
+              localStorage.setItem('modeViewProgress', "edit")
+              setModeViewProgress("edit")
             }}
-            className={`mt-1 ${modeViewTable === "edit" ? "bg-gray-200 dark:bg-gray-50/5 rounded-md" : ""}`}>
+            className={`mt-1 ${modeViewProgress === "edit" ? "bg-gray-200 dark:bg-gray-50/5 rounded-md" : ""}`}>
               <div className='justify-between'>
                 <a>
                   Edit
                 </a>
-                {modeViewTable === "edit" && (
+                {modeViewProgress === "edit" && (
                   <>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="green" className="size-4">
                       <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
@@ -545,15 +563,15 @@ const Table: React.FC = () => {
               </div>
             </li>
             <li onClick={() => {
-              localStorage.setItem('modeViewTable', "view")
-              setModeViewTable("view")
+              localStorage.setItem('modeViewProgress', "view")
+              setModeViewProgress("view")
             }} 
-                  className={`mt-1 ${modeViewTable === "view" ? "bg-gray-200 dark:bg-gray-50/5 rounded-md" : ""}`}>
+                  className={`mt-1 ${modeViewProgress === "view" ? "bg-gray-200 dark:bg-gray-50/5 rounded-md" : ""}`}>
               <div className='justify-between'>
                 <a>
                   Lihat Aja
                 </a>
-                {modeViewTable === "view" && (
+                {modeViewProgress === "view" && (
                   <>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="green" className="size-4">
                       <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
@@ -587,7 +605,7 @@ const Table: React.FC = () => {
                         </span>
                         </div>
                           <div className='text-end tooltip' data-tip="Hapus Kemajuan">
-                            {modeViewTable == "edit" && (
+                            {modeViewProgress == "edit" && (
                               <>
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg" 
@@ -642,7 +660,7 @@ const Table: React.FC = () => {
                                   </svg>
                               ) : (
                                 <>
-                                  {modeViewTable === "edit" && (
+                                  {modeViewProgress === "edit" && (
                                     <>
                                     <div className='xl:tooltip xl:tooltip-right' data-tip="Edit nama kemajuan">
                                         <svg
@@ -668,7 +686,7 @@ const Table: React.FC = () => {
                                 </>
                               )}
                             </div>
-                            {modeViewTable === "edit" ? (
+                            {modeViewProgress === "edit" ? (
                               <>
                                 <div className='flex'>
                                   {activeRowProgressDesc === progress.progressId ? (
@@ -837,7 +855,7 @@ const Table: React.FC = () => {
       {loading ? (
         <div className={`text-xl badge badge-ghost p-3 ${data.length !== 0 ? "" : "animate-pulse"}`}>0/22</div>
       ) : (
-        <div className={`text-xl badge badge-ghost p-3 ${data.length !== 0 ? "" : ""}`}>{data.length !== 0 ? data.length : "0"}/{maxTotalData}</div>
+        <div className={`text-xl badge badge-ghost p-3 ${data.length !== 0 ? "" : ""}`}>{data.length !== 0 ? data.length : "0"}/{maxTotalData ? maxTotalData : "22"}</div>
       )}
         <div className="inline-flex">
           <h2 className="card-title ml-1">List Perusahaan</h2>
@@ -1397,12 +1415,22 @@ const Table: React.FC = () => {
                           <th>
                             <div className='inline-flex'>
                               <button 
-                                className="btn btn-xs hover:bg-gray-200 hover:scale-105 dark:bg-gray-50 dark:text-black bg-gray-200 rounded-md text-gray-700 mr-1" 
+                                className="indicator mr-2 z-20 btn btn-xs hover:bg-gray-200 hover:scale-105 dark:bg-gray-50 dark:text-black bg-gray-200 rounded-md text-gray-700" 
                                 onClick={() => {
                                   (document.getElementById('progressModal') as HTMLDialogElement)?.showModal()
                                   handleProgress(items.rowId, items.mitra_brand_name)
                                 }}>
-                                Kemajuan
+                                Kemajuan                                
+                                {Array.isArray(items.progress) ? (
+                                  <>
+                                  <span className="indicator-item badge bg-lime-200 dark:text-black">
+                                    {items.progress.length}
+                                  </span>
+                                  </>
+                                ) : (
+                                  <>
+                                  </>
+                                )}
                               </button>
                               <button 
                                 className="btn btn-xs hover:bg-gray-200 hover:scale-105 dark:bg-gray-50 dark:text-black bg-gray-200 rounded-md text-gray-700 mr-2" 

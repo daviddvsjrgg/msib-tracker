@@ -38,9 +38,8 @@ export async function addData(userId: string, namaPerusahaan: string): Promise<v
       mitra_logo: "",
       mitra_brand_name: namaPerusahaan,
       semester_program: "",
-      note: "Link Instagram: https://instagram.com/davidjrggbro",
+      note: "Link Instagram: https://instagram.com",
       cycle: "8",
-      progress: "",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

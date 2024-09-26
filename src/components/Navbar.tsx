@@ -97,6 +97,27 @@ const Navbar = () => {
         
   return (
     <>
+    {/* Profile Modal */}
+    <input type="checkbox" id="profileModal" className="modal-toggle" />
+    <div className="modal" role="dialog">
+    <div className="modal-box max-w-2xl">
+        <h3 className="text-lg font-bold">Profile</h3>
+        <p className="py-4 text-gray-400"> Jika ingin menambah jumlah batas perusahaan, ada masalah teknis, atau yang lainnya. Coba <a className='underline text-blue-400' target='_blank' href='https://instagram.com/davidjrggbro'>DM aku</a> menyertakan ID User, terus ada kendala apa masbro.</p>
+        <div className='divider -mt-1 divider-info'></div>
+        <div>
+            {isAnonymous ? (
+                <>
+                    <p>Akun Anonymous tidak memiliki ID User, silahkan login.</p>
+                </>
+            ) : (
+                <>
+                    <p>ID User: {auth.currentUser?.uid}</p>
+                </>
+            )}
+        </div>
+    </div>
+    <label className="modal-backdrop" htmlFor="profileModal">Close</label>
+    </div>
     {/* Guide Modal */}
     <input type="checkbox" id="guideModal" className="modal-toggle" />
     <div className="modal" role="dialog">
@@ -241,9 +262,9 @@ const Navbar = () => {
                 tabIndex={0}
                 className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
                 <li>
-                    <a className="justify-between">
+                    <label htmlFor="profileModal">
                         {isAnonymous ? "Profile (anonymous)" : auth.currentUser?.displayName}
-                    </a>
+                    </label>
                 </li>
                 <li>
                     {isAnonymous  ? (

@@ -1,9 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: false,
-    // compiler: {
-    //     removeConsole: true,
-    //   },
+    compiler: {
+        removeConsole: true,
+      },
     images: {
         remotePatterns: [
             {
