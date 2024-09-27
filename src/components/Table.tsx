@@ -594,16 +594,6 @@ const Table: React.FC = () => {
                 {progressData.map((progress) => (
                   <>
                     <div className="flex gap-x-3">
-                        <div className="w-auto text-end">
-                        <span className="text-xs text-gray-500 dark:text-neutral-400">
-                          {new Date(progress.createdAt).toLocaleDateString('id-ID', {
-                            timeZone: 'Asia/Jakarta',
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric',
-                          }).replace(/(?<=\w{3})\s/, ', ')}
-                        </span>
-                        </div>
                           <div className='text-end tooltip' data-tip="Hapus Kemajuan">
                             {modeViewProgress == "edit" && (
                               <>
@@ -641,9 +631,21 @@ const Table: React.FC = () => {
                               className="input input-bordered input-sm hover:border-black w-full max-w-xs"
                               />
                           ) : (
-                            <h3 className="flex gap-x-1.5 font-semibold text-gray-800 dark:text-white">
-                              {progress.progressName}
+                            <>
+                              <h3 className="flex gap-x-1.5 font-semibold text-gray-800 dark:text-white">
+                                {progress.progressName}
+                                <div className="w-auto text-end">
+                                <span className="text-xs text-gray-400 dark:text-neutral-400">
+                                  {new Date(progress.createdAt).toLocaleDateString('id-ID', {
+                                    timeZone: 'Asia/Jakarta',
+                                    year: 'numeric',
+                                    month: 'short',
+                                    day: 'numeric',
+                                  }).replace(/(?<=\w{3})\s/, ', ')}
+                                </span>
+                                </div>
                               </h3>
+                            </>
                           )}
                             {activeRowProgressName === progress.progressId ? (
                                   <svg 
@@ -742,7 +744,7 @@ const Table: React.FC = () => {
                               </>
                             ) : (
                               <>
-                                <p className="mt-1.5 text-sm text-gray-600 dark:text-neutral-400">
+                                <p className="mt-1.5 text-sm text-gray-600 dark:text-neutral-400 w-auto">
                                  {renderTextWithLinksAndSpacesAndNewlines(progress.description)}
                                 </p>
                               </>
