@@ -6,6 +6,7 @@ import { GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from
 import { get, ref, remove, set } from 'firebase/database';
 import { useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import Link from 'next/link';
 
 let linkSaweria = "https://saweria.co/davidcode";
 
@@ -215,11 +216,14 @@ const Navbar = () => {
             <li>
                 <label htmlFor="guideModal">Panduan</label>
             </li>
+            <li>
+                <Link href='/timeline'>Timeline</Link>
+            </li>
             {/* <li><a>Item 3</a></li> */}
         </ul>
         </div>
     {/* End Item (Mobile) */}
-        <a className="btn btn-ghost text-xl">MSIB Tracker</a>
+        <Link href='/' className="btn btn-ghost text-xl">MSIB Tracker</Link>
     </div>
     <div className="flex-none gap-2">
         {/* Item */}
@@ -236,6 +240,9 @@ const Navbar = () => {
             <li>
                 <label htmlFor="guideModal">Panduan</label>
             </li>
+            <li>
+                <a href='/timeline'>Timeline</a>
+            </li>
             {/* <li><a>Item 3</a></li> */}
             </ul>
         </div>
@@ -248,7 +255,7 @@ const Navbar = () => {
             <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
                 <div className="w-10 rounded-full">
                 <Image
-                    className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
+                    className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70]"
                     alt="Photo Profile"
                     src={`${isAnonymous ? "https://images.unsplash.com/photo-1598935888738-cd2622bcd437?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" : photoURL}`}
                     width={180}

@@ -225,7 +225,14 @@ const Table: React.FC = () => {
         {line.split(urlRegex).map((part, i) => {
           if (part.match(urlRegex)) {
             return (
-              <a href={part} key={i} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
+              <a
+                href={part}
+                key={i}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 underline"
+                style={{ wordBreak: 'break-all', overflowWrap: 'break-word' }}
+              >
                 {part}
               </a>
             );
@@ -426,7 +433,7 @@ const Table: React.FC = () => {
     <>
     {/* Modal Note */}
     <dialog id="detailModal" className="modal">
-      <div className="modal-box w-11/12 max-w-3xl">
+      <div className="modal-box w-11/12 max-w-5xl">
       <div className='justify-between flex'>
         <h3 className="font-bold text-lg">Catatan {mitraBrandName}</h3>
         <div className='modal-dialog'>
@@ -511,18 +518,18 @@ const Table: React.FC = () => {
         </div>
         <p className="text-sm text-gray-400 xl:-mt-5">Otomatis tersimpan</p>
         <div>
-          <button 
-          onClick={() => {
-            handleAddProgress(progressRowId? progressRowId : "")
-          }}
-          className="btn btn-sm mt-2 hover:scale-105 duration-150 dark:bg-white dark:text-black dark:hover:bg-black dark:hover:text-white">
-            Tambah Kemajuan
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-            </svg>
-          </button>
-        </div>
-        <div className="dropdown mt-3">
+          <div className='justify-between flex'>
+            <button 
+            onClick={() => {
+              handleAddProgress(progressRowId? progressRowId : "")
+            }}
+            className="btn btn-sm mt-2 hover:scale-105 duration-150 dark:bg-white dark:text-black dark:hover:bg-black dark:hover:text-white">
+              Tambah Kemajuan
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+              </svg>
+            </button>
+            <div className="dropdown dropdown-left dropdown-end mt-3">
           <div tabIndex={0} role="button" className={`btn btn-xs  bg-white border-gray-400 dark:text-black dark:hover:bg-black dark:hover:text-white`}>
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
             <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
@@ -581,6 +588,8 @@ const Table: React.FC = () => {
               </div>
             </li>
           </ul>
+        </div>
+          </div>
         </div> 
         <div className="divider divider-info mt-1"></div>
         {/* Progress */}
@@ -594,7 +603,7 @@ const Table: React.FC = () => {
                 {progressData.map((progress) => (
                   <>
                     <div className="flex gap-x-3">
-                          <div className='text-end tooltip' data-tip="Hapus Kemajuan">
+                          <div className='text-end tooltip tooltip-right' data-tip="Hapus Kemajuan">
                             {modeViewProgress == "edit" && (
                               <>
                                 <svg
@@ -706,7 +715,7 @@ const Table: React.FC = () => {
                                           <textarea
                                             value={progress.description}
                                             onChange={handleUpdateTextAreaProgressDesc}
-                                            className="textarea textarea-bordered h-auto w-full display" 
+                                            className="textarea textarea-bordered h-96 w-full display" 
                                           />
                                           <svg 
                                             xmlns="http://www.w3.org/2000/svg" 
@@ -721,7 +730,7 @@ const Table: React.FC = () => {
                                         </>
                                       ): (
                                         <>
-                                          <div className='xl:tooltip xl:tooltip-right' data-tip="Edit deskripsi">
+                                          <div className='xl:tooltip xl:tooltip-left' data-tip="Edit deskripsi">
                                             <svg
                                               xmlns="http://www.w3.org/2000/svg"
                                               fill="none"
@@ -744,7 +753,7 @@ const Table: React.FC = () => {
                               </>
                             ) : (
                               <>
-                                <p className="mt-1.5 text-sm text-gray-600 dark:text-neutral-400 w-auto">
+                                <p className="mt-1.5 text-sm text-gray-600 dark:text-neutral-400">
                                  {renderTextWithLinksAndSpacesAndNewlines(progress.description)}
                                 </p>
                               </>
@@ -795,13 +804,13 @@ const Table: React.FC = () => {
               </>
           ) : namaPerusahaanIsEmpty ? (
               <>
-                  <button onClick={handleTambahPerusahaan} className="btn btn-info hover:text-gray-800 text-white ">
+                  <button onClick={handleTambahPerusahaan} className="btn btn-info hover:text-gray-200 text-white ">
                       Tambahkan
                   </button>
               </>
           ) : (
               <form method="dialog">
-                  <button onClick={handleTambahPerusahaan} className="btn btn-info hover:text-gray-800 text-white ">
+                  <button onClick={handleTambahPerusahaan} className="btn btn-info hover:text-gray-200 text-white ">
                       Tambahkan
                   </button>
               </form>
@@ -831,12 +840,6 @@ const Table: React.FC = () => {
         </div>
       </div>
     </dialog>
-    <div className="
-      md:card md:mx-5 md:my-6 
-      mx-0 my-0
-      bg-base-100 w-auto shadow-xl"
-      >
-      <div className="card-body">
     {/* Alert */}
     {addButton && (
         <div role="alert" className="flex alert alert-success fixed bottom-4 right-4 z-50 w-auto md:w-3/12 animate-bounce items-center">
@@ -854,6 +857,12 @@ const Table: React.FC = () => {
           <span className='text-white -ml-2'>Data baru ditambahkan</span>
         </div>
     )}
+    <div className="
+      md:card md:mx-5 md:my-6 
+      mx-0 my-0
+      bg-base-100 w-auto shadow-xl"
+      >
+      <div className="card-body">
       {loading ? (
         <div className={`text-xl badge badge-ghost p-3 ${data.length !== 0 ? "" : "animate-pulse"}`}>0/22</div>
       ) : (
@@ -1425,7 +1434,7 @@ const Table: React.FC = () => {
                                 Kemajuan                                
                                 {Array.isArray(items.progress) ? (
                                   <>
-                                  <span className="indicator-item badge bg-lime-200 dark:text-black">
+                                  <span className="indicator-item badge bg-lime-400 dark:bg-gray-50 dark:text-black">
                                     {items.progress.length}
                                   </span>
                                   </>
