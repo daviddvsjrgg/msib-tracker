@@ -5,7 +5,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "MSIB Tracker | Tracker MSIB Terbaik di Indonesia",
+  title: "MSIB Tracker",
   description: "Lacak kemajuan MSIB Anda dengan mudah menggunakan tracker kami yang ramah pengguna.",
   keywords: "MSIB, tracker, msib tracker, kemajuan MSIB, update MSIB, pendidikan Indonesia",
   authors: [{ name: "David Dwiyanto" }],
