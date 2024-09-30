@@ -438,7 +438,7 @@ const Table: React.FC = () => {
         <h3 className="font-bold text-lg">Catatan {mitraBrandName}</h3>
         <div className='modal-dialog'>
           <form method="dialog">
-            <button className="btn">Tutup</button>
+            <button className="btn">⨉</button>
           </form>
         </div>
       </div>
@@ -512,7 +512,7 @@ const Table: React.FC = () => {
           <h3 className="font-bold text-lg">Kemajuan {mitraBrandName}</h3>
           <div className='modal-dialog'>
             <form method="dialog">
-              <button className="btn">Tutup</button>
+              <button className="btn">⨉</button>
             </form>
           </div>
         </div>
@@ -770,7 +770,12 @@ const Table: React.FC = () => {
     {/* Modal Add */}
     <dialog id="addModal" className="modal">
       <div className="modal-box w-11/12 max-w-5xl">
+      <div className='flex justify-between mb-4'>
         <h3 className="font-bold text-lg">Tambah List Perusahaan</h3>
+        <form method="dialog">
+          <button className="btn">⨉</button>
+        </form>
+      </div>
         <div className="divider divider-info -my-1"></div>
         <div className='column-4'>
         <label className="w-auto">
@@ -786,16 +791,12 @@ const Table: React.FC = () => {
             className={`input input-bordered w-full ${namaPerusahaanIsEmpty ? "input-error" : ""}`} />
             {namaPerusahaanIsEmpty && (
               <>
-                <p className='text-sm text-red-600 mt-1'>Hah kosong kak? Isi dulu dong, nama perusahaan apa gitu :D</p>
+                <p className='text-sm text-red-600 mt-1'>Hah kosong kak? Isi dulu dong, nama perusahaan apa gitu 😊</p>
               </>
             )}
         </label>
         </div>
         <div className="modal-action">
-          <form method="dialog">
-            {/* if there is a button, it will close the modal */}
-            <button className="btn mx-2">Tutup</button>
-          </form>
           {maxTotalData !== null && data.length >= maxTotalData ? (
               <>
                   <button disabled className='btn text-black bg-gray-200 dark:hover:bg-gray-300'>
@@ -1181,7 +1182,6 @@ const Table: React.FC = () => {
                     const isItLastSecondRow = index === data.length - 2;
 
                     return (
-                    <>
                       <tbody key={items.rowId}>
                         <tr className='hover:bg-gray-100 dark:hover:bg-gray-50/5'>
                           <td>{index + 1}</td>
@@ -1431,10 +1431,10 @@ const Table: React.FC = () => {
                                   (document.getElementById('progressModal') as HTMLDialogElement)?.showModal()
                                   handleProgress(items.rowId, items.mitra_brand_name)
                                 }}>
-                                Kemajuan                                
+                                Kemajuan                              
                                 {Array.isArray(items.progress) ? (
                                   <>
-                                  <span className="indicator-item badge bg-lime-400 dark:bg-gray-50 dark:text-black">
+                                  <span className="indicator-item badge bg-gray-50 border border-gray-200 dark:bg-gray-50 dark:text-black">
                                     {items.progress.length}
                                   </span>
                                   </>
@@ -1474,7 +1474,6 @@ const Table: React.FC = () => {
                           </th>
                         </tr> 
                       </tbody>
-                    </>
                     )
                   })}
                   {/* foot */}

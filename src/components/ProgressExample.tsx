@@ -2,7 +2,7 @@ import React from 'react'
 
 const ProgressExample = () => {
   return (
-    <div>
+    <div className='animate-pulse'>
         <div className="flex gap-x-3">
             <div className="relative last:after:hidden after:absolute after:top-7 after:bottom-0 after:start-3.5 after:w-px after:-translate-x-[0.5px] after:bg-gray-200 dark:after:bg-neutral-700">
                 <div className="relative z-10 size-7 flex justify-center items-center">
@@ -21,7 +21,7 @@ const ProgressExample = () => {
                     Dilaksanakan pada 30 Oktober, 2024. Pukul 14:00 WIB - Selesai
                 </p>
                 <p className="mt-1 text-sm text-gray-600 dark:text-neutral-400">
-                    Link Zoom: <a href='htts://zoom.com' className='text-blue-600 underline'>https://zoom.com</a>
+                    Link Zoom: <a href='https://zoom.com' target='_blank' className='text-blue-600 underline'>https://zoom.com</a>
                 </p>
             </div>
         </div>

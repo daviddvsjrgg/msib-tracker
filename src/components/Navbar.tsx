@@ -241,7 +241,7 @@ const Navbar = () => {
                 <label htmlFor="guideModal">Panduan</label>
             </li>
             <li>
-                <a href='/timeline'>Timeline</a>
+                <Link href='/timeline'>Timeline</Link>
             </li>
             {/* <li><a>Item 3</a></li> */}
             </ul>
