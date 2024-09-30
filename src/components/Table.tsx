@@ -1096,14 +1096,14 @@ const Table: React.FC = () => {
                   )}
                 </div>
               </li>
-              <li className={`mt-1 ${sortStatus === "Di Ghosting" ? "bg-gray-200 dark:bg-gray-50/5 rounded-md" : ""}`} onClick={() => {
-                handleSortStatus("Di Ghosting")
+              <li className={`mt-1 ${sortStatus === "Tidak Lolos" ? "bg-gray-200 dark:bg-gray-50/5 rounded-md" : ""}`} onClick={() => {
+                handleSortStatus("Tidak Lolos")
               }}>
                 <div className='justify-between'>
                   <a>
-                    Di Ghosting
+                    Tidak Lolos
                   </a>
-                  {sortStatus === "Di Ghosting" && (
+                  {sortStatus === "Tidak Lolos" && (
                     <>
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="green" className="size-4">
                         <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
@@ -1389,7 +1389,7 @@ const Table: React.FC = () => {
                                   ${items.status === "Diterima" ? 'bg-green-500 text-white hover:bg-green-600' :
                                   items.status === "Diproses" ? 'bg-yellow-400 hover:text-gray-700 dark:text-black hover:bg-yellow-500' :
                                   items.status === "Terdaftar" ? 'bg-sky-400 text-white hover:bg-sky-500' :
-                                  items.status === "Di Ghosting" ? '' :
+                                  items.status === "Tidak Lolos" ? '' :
                                   "Opsi"}`}>
                                   {items.status ? items.status : "Opsi"}
                                   <div>
@@ -1416,8 +1416,8 @@ const Table: React.FC = () => {
                                 </a>
                               </li>
                               <li>
-                                <a onClick={() => handleOptionSelect('Di Ghosting', items.rowId, "status")}>
-                                  Di Ghosting
+                                <a onClick={() => handleOptionSelect('Tidak Lolos', items.rowId, "status")}>
+                                  Tidak Lolos
                                 </a>
                               </li>
                             </ul>
