@@ -1,6 +1,7 @@
 import { ref, set, get } from 'firebase/database';
 import { db } from '@/config/firebase';
 import { v4 as uuidv4 } from 'uuid';
+import { updateUpdatedAtTable } from '../editData/editData';
 
 export async function addData(userId: string, namaPerusahaan: string): Promise<void> {
   try {
@@ -64,6 +65,8 @@ export async function addProgressData(userId: string, rowId: string): Promise<vo
       description: "",
       createdAt: new Date().toISOString(),
     };
+
+    updateUpdatedAtTable(userId, rowId)
 
     // Set the data at the specified reference
     await set(newTableRef, data);

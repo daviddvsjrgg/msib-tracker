@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { authenticateAndSave } from '@/api/account/authenticateAndSave';
 import { addData, addProgressData } from '@/api/usersTable/addData/addData';
-import { get, onValue, ref} from 'firebase/database';
+import { onValue, ref} from 'firebase/database';
 import { db } from '@/config/firebase';
 import { updateInput, updateInputRowProgressDesc, updateInputRowProgressName, updateOption } from '@/api/usersTable/editData/editData';
 import { deleteItem, deleteProgress } from '@/api/usersTable/deleteData/deleteData';
@@ -892,6 +892,7 @@ const Table: React.FC = () => {
             </>
           )}
         </div>
+          <h2 className="text-sm ml-1 -my-2 text-gray-400">Update secara realtime</h2>
         <div className="overflow-x-auto">
           <div className='mt-2'>
           <div className="dropdown">
@@ -1140,7 +1141,24 @@ const Table: React.FC = () => {
                           </a>
                         ) : (
                           <>
-                            <p className="text-md">Tidak ada data...</p>
+                            <a href='https://medium.com/@daviddwiyanto.social/msib-tracker-lacak-kemajuan-program-msib-anda-dengan-mudah-1ce2ae8ca82e'
+                              target='_blank'
+                              className="text-md text-blue-500 underline">Apa itu MSIB Tracker?</a>
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        {loading ? (
+                          <a>
+                            <p className="animate-pulse text-md">Loading data...</p>
+                          </a>
+                        ) : (
+                          <>
+                            <a href='https://medium.com/@daviddwiyanto.social/msib-tracker-lacak-kemajuan-program-msib-anda-dengan-mudah-1ce2ae8ca82e'
+                              target='_blank'
+                              className="text-md text-blue-500 underline">Cara dan Contoh Penggunaan MSIB Tracker.</a>
                           </>
                         )}
                       </td>
@@ -1149,13 +1167,13 @@ const Table: React.FC = () => {
                   {/* foot */}
                   <tfoot className={`h-56`}>
                     <tr className={`hidden`}>
-                      <th>No</th>
-                      <th>Nama Perusahaan</th>
-                      <th>Jenis</th>
-                      <th>Posisi</th>
-                      <th>Lokasi</th>
-                      <th>Status</th>
-                      <th></th>
+                    <th>Kita Bukan Genius!</th>
+                      <th>Kita Harus</th>
+                      <th>Berani Untuk Gagal</th>
+                      <th>Untuk</th>
+                      <th>Bisa</th>
+                      <th>Berkembang</th>
+                      <th>~karakter anime</th>
                     </tr>
                   </tfoot>
                 </table>
@@ -1184,7 +1202,9 @@ const Table: React.FC = () => {
                     return (
                       <tbody key={items.rowId}>
                         <tr className='hover:bg-gray-100 dark:hover:bg-gray-50/5'>
-                          <td>{index + 1}</td>
+                          <td>
+                            {index + 1}
+                          </td>
                           <td>
                             <div className="flex items-center gap-3">
                               {activeColCompany === items.rowId ? (

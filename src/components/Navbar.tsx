@@ -73,6 +73,7 @@ const Navbar = () => {
                 tableId,
                 username: userCredential.user.displayName,
                 loginWith: 'google',
+                role: 'applicant',
                 maxTotalData: 22,
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
@@ -104,7 +105,7 @@ const Navbar = () => {
     <div className="modal" role="dialog">
     <div className="modal-box max-w-2xl">
         <h3 className="text-lg font-bold">Profile</h3>
-        <p className="py-4 text-gray-400"> Jika ingin menambah jumlah batas perusahaan, ada masalah teknis, atau yang lainnya. Coba <a className='underline text-blue-400' target='_blank' href='https://instagram.com/davidjrggbro'>DM aku</a> menyertakan ID User, terus ada kendala apa masbro.</p>
+        <p className="py-4 text-gray-400"> Jika ingin menambah jumlah batas perusahaan, ada masalah teknis, atau yang lainnya. Coba <a className='underline text-blue-500' target='_blank' href='https://instagram.com/davidjrggbro'>DM aku</a> menyertakan ID User, terus ada kendala apa masbro.</p>
         <div className='divider -mt-1 divider-info'></div>
         <div>
             {isAnonymous ? (
@@ -125,28 +126,16 @@ const Navbar = () => {
     <div className="modal" role="dialog">
     <div className="modal-box max-w-7xl">
         <h3 className="text-lg font-bold">Panduan</h3>
-        <p className="py-4 text-gray-400"><a className='underline text-blue-400' target='_blank' href='https://instagram.com/davidjrggbro'>DM aku</a> jika punya saran atau hal yang ingin ditanyakan. 😊</p>
-        <div className="carousel w-full border border-indigo-600">
-        <div id="item1" className="carousel-item w-full justify-center">
-            <Image
-            src="https://firebasestorage.googleapis.com/v0/b/msib8-tracker.appspot.com/o/guide%2F1.png?alt=media&token=99b60342-8a7e-426d-9602-eaccf2e6c522"
-             priority unoptimized width={700} height={300} alt='photo' />
+        <div className='divider -mt-0.5'></div>
+        <div>
+            <a href='https://medium.com/@daviddwiyanto.social/msib-tracker-lacak-kemajuan-program-msib-anda-dengan-mudah-1ce2ae8ca82e'
+                target='_blank'
+                className="text-md text-blue-500 underline">1. Apa itu MSIB Tracker?</a>
         </div>
-        <div id="item2" className="carousel-item w-full justify-center">
-            <Image
-            src="https://firebasestorage.googleapis.com/v0/b/msib8-tracker.appspot.com/o/guide%2F2.png?alt=media&token=71b321a1-af68-40fe-b3a9-fa82c3b45da0"
-             priority unoptimized width={700} height={300} alt='photo' />
-        </div>
-        <div id="item3" className="carousel-item w-full justify-center">
-            <Image
-            src="https://firebasestorage.googleapis.com/v0/b/msib8-tracker.appspot.com/o/guide%2F3.png?alt=media&token=d3095e6c-0c2a-4d0e-a4b5-fa77fc9b9fe9"
-             priority unoptimized width={700} height={300} alt='photo' />
-        </div>
-        </div>
-        <div className="flex w-full justify-center gap-2 py-2">
-            <a href="#item1" className="btn btn-xs">1</a>
-            <a href="#item2" className="btn btn-xs">2</a>
-            <a href="#item3" className="btn btn-xs">3</a>
+        <div className='mt-2'>
+            <a href='https://medium.com/@daviddwiyanto.social/msib-tracker-lacak-kemajuan-program-msib-anda-dengan-mudah-1ce2ae8ca82e'
+                target='_blank'
+                className="text-md text-blue-500 underline">2. Cara dan Contoh Penggunaan MSIB Tracker.</a>
         </div>
     </div>
     <label className="modal-backdrop" htmlFor="guideModal">Close</label>

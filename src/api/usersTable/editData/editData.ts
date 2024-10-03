@@ -21,8 +21,7 @@ export const updateOption = async (option: string, userId: string, rowId: string
       // Otherwise, update the data
       await set(dbRef, option);
 
-      const dbRefTimeUpdated = ref(db, `users/${userId}/table/${rowId}/updatedAt`);
-      await set(dbRefTimeUpdated, new Date().toISOString());
+      updateUpdatedAtTable(userId, rowId)
     }
   } catch (error) {
     console.error('Error saving data:', error);
@@ -35,8 +34,7 @@ export const updateInput = async (value: string, userId: string, rowId: string, 
     const dbRef = ref(db, `users/${userId}/table/${rowId}/${column}`);
     await set(dbRef, value);
 
-    const dbRefTimeUpdated = ref(db, `users/${userId}/table/${rowId}/updatedAt`);
-    await set(dbRefTimeUpdated, new Date().toISOString());
+    updateUpdatedAtTable(userId, rowId)
 
   } catch (error) {
     console.error("Error updating Firebase:", error);
@@ -44,10 +42,12 @@ export const updateInput = async (value: string, userId: string, rowId: string, 
 };
 
 // Edit Row Progress Name Change
-export const updateInputRowProgressName = async (value: string, tableRowId: string, userId: string, progressId: string, column: string) => {
+export const updateInputRowProgressName = async (value: string, rowId: string, userId: string, progressId: string, column: string) => {
   try {
-    const dbRef = ref(db, `users/${userId}/table/${tableRowId}/progress/${progressId}/${column}`);
+    const dbRef = ref(db, `users/${userId}/table/${rowId}/progress/${progressId}/${column}`);
     await set(dbRef, value);
+
+    updateUpdatedAtTable(userId, rowId)
 
   } catch (error) {
     console.error("Error updating Firebase:", error);
@@ -55,10 +55,23 @@ export const updateInputRowProgressName = async (value: string, tableRowId: stri
 };
 
 // Edit Row Progress Desc Change
-export const updateInputRowProgressDesc = async (value: string, tableRowId: string, userId: string, progressId: string, column: string) => {
+export const updateInputRowProgressDesc = async (value: string, rowId: string, userId: string, progressId: string, column: string) => {
   try {
-    const dbRef = ref(db, `users/${userId}/table/${tableRowId}/progress/${progressId}/${column}`);
+    const dbRef = ref(db, `users/${userId}/table/${rowId}/progress/${progressId}/${column}`);
     await set(dbRef, value);
+
+    updateUpdatedAtTable(userId, rowId)
+
+  } catch (error) {
+    console.error("Error updating Firebase:", error);
+  }
+};
+
+export const updateUpdatedAtTable = async (userId: string, rowId: string) => {
+  try {
+
+    const dbRefTimeUpdated = ref(db, `users/${userId}/table/${rowId}/updatedAt`);
+    await set(dbRefTimeUpdated, new Date().toISOString());
 
   } catch (error) {
     console.error("Error updating Firebase:", error);
