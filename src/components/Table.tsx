@@ -1141,6 +1141,17 @@ const Table: React.FC = () => {
                           </a>
                         ) : (
                           <>
+                            <p className="text-md">Tidak ada data masbro, silakan Tambah terlebih dahulu.</p>
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        {loading ? (
+                          <></>
+                        ) : (
+                          <>
                             <a href='https://medium.com/@daviddwiyanto.social/msib-tracker-lacak-kemajuan-program-msib-anda-dengan-mudah-1ce2ae8ca82e'
                               target='_blank'
                               className="text-md text-blue-500 underline">Apa itu MSIB Tracker?</a>
@@ -1151,9 +1162,7 @@ const Table: React.FC = () => {
                     <tr>
                       <td>
                         {loading ? (
-                          <a>
-                            <p className="animate-pulse text-md">Loading data...</p>
-                          </a>
+                          <></>
                         ) : (
                           <>
                             <a href='https://medium.com/@daviddwiyanto.social/msib-tracker-lacak-kemajuan-program-msib-anda-dengan-mudah-1ce2ae8ca82e'
