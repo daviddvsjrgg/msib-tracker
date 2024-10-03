@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "MSIB Tracker",
   description: "Lacak kemajuan MSIB Anda dengan mudah menggunakan tracker kami yang ramah pengguna.",
-  keywords: "MSIB, tracker, msib tracker, kemajuan MSIB, update MSIB, pendidikan Indonesia",
+  keywords: "msib tracker, MSIB",
   authors: [{ name: "David Dwiyanto" }],
   robots: {
     index: true,
