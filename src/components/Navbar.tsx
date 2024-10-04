@@ -214,7 +214,7 @@ const Navbar = () => {
         </div>
     {/* End Item (Mobile) */}
         <h1>
-            <Link href='/' className="btn btn-ghost text-xl">MSIB Tracker (Testing)</Link>
+            <Link href='/' className="btn btn-ghost text-xl">MSIB Tracker</Link>
         </h1>
     </div>
     <div className="flex-none gap-2">
